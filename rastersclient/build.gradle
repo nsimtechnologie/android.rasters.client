@@ -1,22 +1,24 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
-//publish {
-//
-//    def groupProjectID = 'com.nsimtech'
-//    def artifactProjectID = 'rasters.client'
-//    def publishVersionID = '0.1'
-//
-//    userOrg = 'simf20'
-//    repoName = 'rasters.client'
-//    groupId = groupProjectID
-//    artifactId = artifactProjectID
-//    publishVersion = publishVersionID
-//    desc = 'Client for '
-//    website = '{github_url}'
-//
-//}
+publish {
+
+    def groupProjectID = 'com.nsimtech'
+    def artifactProjectID = 'rasters.client'
+    def publishVersionID = '0.1'
+
+    userOrg = 'rastersio'
+    repoName = 'rasters.client'
+    groupId = groupProjectID
+    artifactId = artifactProjectID
+    publishVersion = publishVersionID
+    desc = 'Rest Client for https://api.rasters.io'
+    website = 'https://github.com/nsimtechnologie/android.rasters.client.git'
+
+}
+
 
 android {
     compileSdkVersion 28
