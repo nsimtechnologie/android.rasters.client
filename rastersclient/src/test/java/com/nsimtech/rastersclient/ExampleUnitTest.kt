@@ -19,9 +19,11 @@ import java.util.*
 class ExampleUnitTest {
 
     var _url : String = "https://api.rasters.io";
-    var _username : String = "{your username here}";
-    var _password : String = "{your password here}";
-    var _mapkey : UUID = UUID.fromString("{your mapkey here}");
+    var _username : String = "{ Your username here }";
+    var _mobileusername : String = "{ Your mobile username here }";
+    var _validPin : String = "{ Your pin here }";
+    var _password : String = "{ Your password here }";
+    var _mapkey : UUID = UUID.fromString("{ Your mapkey here }");
 
     @Test
     fun rastersClient_AuthenticateByCredentials_ShouldReturnAccessTokenAndRefreshToken()
@@ -127,6 +129,45 @@ class ExampleUnitTest {
         }
 
         assertTrue(organizations != null);
+    }
+
+    @Test
+    fun rastersClient_UsersOperations_WithExistingPin_ShouldReturnUserInfoAndTempPassword()
+    {
+        val client = buildRasterClient();
+
+        runBlocking {
+            client.authenticateFromCredentials(_mobileusername,_password);
+        }
+
+        var impersonatedUser:ImpersonatedUser? = null;
+
+        runBlocking {
+            impersonatedUser = client.users.getImpersonatedUser(_validPin).await();
+        }
+
+        assertTrue(impersonatedUser != null);
+    }
+
+    @Test
+    fun rastersClient_AsImpersonatedUser()
+    {
+        var client = buildRasterClient();
+
+        runBlocking {
+            client.authenticateFromCredentials(_mobileusername,_password);
+        }
+
+        val imperclient = client.asImpersonatedUser(_validPin);
+
+        var user : User? = null;
+
+        runBlocking {
+            user = imperclient.account.getMe().await();
+        }
+
+        assertTrue(user != null);
+        assertEquals(user!!.pin,_validPin);
     }
 
     private fun buildRasterClient(): RastersClient {

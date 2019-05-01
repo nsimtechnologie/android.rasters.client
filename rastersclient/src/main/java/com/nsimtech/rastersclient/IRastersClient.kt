@@ -1,18 +1,19 @@
 package com.nsimtech.rastersclient
 
-import com.nsimtech.rastersclient.contract.IAccountOperations
-import com.nsimtech.rastersclient.contract.IAssetOperations
-import com.nsimtech.rastersclient.contract.IMapOperations
-import com.nsimtech.rastersclient.contract.IOrganizationOperations
+import com.nsimtech.rastersclient.contract.*
 import java.util.*
 
 interface IRastersClient : IHttpClient
 {
+    fun asOrganization(orgId:UUID) : IRastersClient;
+    fun asImpersonatedUser(pin:String) : IRastersClient;
+
     var account: IAccountOperations;
     var organizations: IOrganizationOperations;
-    fun asOrganization(orgId:UUID) : IRastersClient;
     var assets: IAssetOperations;
     var maps: IMapOperations;
+    var users: IUserOperations;
+
 //    var layers: ILayerOperations;
 
 //    var Events: IEventOperations;
@@ -22,6 +23,5 @@ interface IRastersClient : IHttpClient
 //    var IotQuery: IIotQueryOperations;
 //
 //
-//    fun AsImpersonatedUser(pin:String) : IRastersClient;
 
 }

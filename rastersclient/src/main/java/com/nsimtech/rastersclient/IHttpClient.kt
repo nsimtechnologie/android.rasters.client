@@ -12,6 +12,8 @@ interface IHttpClient
      */
     suspend fun authenticateFromCredentials(username: String, password: String): AuthenticationResponse;
 
+    suspend fun authenticateFromCredentials(username: String, password: String, scope: String): AuthenticationResponse;
+
     suspend fun authenticateFromBearerToken(bearerToken: String);
 
     suspend fun authenticateFromRefreshToken(refreshToken: String): AuthenticationResponse;

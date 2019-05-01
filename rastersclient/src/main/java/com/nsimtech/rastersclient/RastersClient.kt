@@ -1,10 +1,9 @@
 package com.nsimtech.rastersclient
 
-import com.nsimtech.rastersclient.contract.IAccountOperations
-import com.nsimtech.rastersclient.contract.IAssetOperations
-import com.nsimtech.rastersclient.contract.IMapOperations
-import com.nsimtech.rastersclient.contract.IOrganizationOperations
+import com.nsimtech.rastersclient.contract.*
+import com.nsimtech.rastersclient.data.ImpersonatedUser
 import com.nsimtech.rastersclient.service.*
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 class RastersClient: RetrofitClientBase, IRastersClient  {
@@ -13,6 +12,7 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
     private var _asset : IAssetOperations;
     private var _map : IMapOperations;
     private var _organization : IOrganizationOperations;
+    private var _user : IUserOperations;
 
     constructor(baseUri: String, organizationId: UUID, authToken: String) : this(baseUri){}
 
@@ -22,11 +22,13 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
         var iAssetOperations : IAssetOperationsService = retrofitClient!!.create(IAssetOperationsService::class.java);
         var iMapOperations : IMapOperationsService = retrofitClient!!.create(IMapOperationsService::class.java);
         var iOrganizationOperations : IOrganizationOperationsService = retrofitClient!!.create(IOrganizationOperationsService::class.java);
+        var iUserOperations : IUserOperationsService = retrofitClient!!.create(IUserOperationsService::class.java);
 
         _account = AccountOperations(iAccountOperations);
         _asset = AssetOperations(iAssetOperations);
         _map = MapOperations(iMapOperations);
         _organization = OrganizationOperations(iOrganizationOperations);
+        _user = UserOperations(iUserOperations);
     }
 
     override var account: IAccountOperations
@@ -46,9 +48,27 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
         get() = _organization
         set(value) {}
 
+    override var users: IUserOperations
+        get() = _user
+        set(value) {}
+
     override fun asOrganization(orgId: UUID): IRastersClient {
         return RastersClient(baseUri,orgId,requestHeaders!!.authorization);
     }
+    override fun asImpersonatedUser(pin: String) : IRastersClient
+    {
+        var impersonatedUser: ImpersonatedUser? = null;
+        runBlocking {
+            impersonatedUser = _user.getImpersonatedUser(pin).await();
+        }
+        var client: RastersClient = RastersClient(baseUri);
 
+        if(impersonatedUser != null) {
+            runBlocking {
+                var response = client.authenticateFromCredentials(impersonatedUser!!.user!!.userName,impersonatedUser!!.tempPassword!!,"impersonification");
+            }
+        }
 
+        return client;
+    }
 }

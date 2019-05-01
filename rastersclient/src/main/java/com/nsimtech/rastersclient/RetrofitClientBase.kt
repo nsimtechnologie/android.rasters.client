@@ -4,6 +4,7 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.nsimtech.rastersclient.service.IAuthOperations
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
 import com.nsimtech.rastersclient.data.RequestHeaders
+import com.nsimtech.rastersclient.interceptor.StatusValidationInterceptor
 import com.nsimtech.rastersclient.service.AuthOperations
 import com.nsimtech.rastersclient.service.IAuthOperationsService
 import kotlinx.coroutines.*
@@ -12,7 +13,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
-import okhttp3.logging.HttpLoggingInterceptor
+//import okhttp3.logging.HttpLoggingInterceptor
 
 
 
@@ -22,7 +23,7 @@ open class RetrofitClientBase : IHttpClient
 
     private lateinit var _retrofitClient : Retrofit;
     private lateinit var _authOperations : IAuthOperations;
-    private lateinit var _requestHeaders : RequestHeaders;
+    private var _requestHeaders : RequestHeaders = RequestHeaders();
 
     var retrofitClient: Retrofit? = null
         get() = _retrofitClient;
@@ -33,24 +34,27 @@ open class RetrofitClientBase : IHttpClient
     var requestHeaders: RequestHeaders? = null
         get() = _requestHeaders;
 
-    constructor(baseUri: String, organizationId: UUID, authToken: String) : this(baseUri)
+    constructor(baseUri: String, organizationId: UUID, auth: String) : this(baseUri)
     {
-        _retrofitClient
+        _requestHeaders.organization = organizationId.toString();
+        _requestHeaders.authorization = auth;
     }
 
     constructor(baseUri: String)
     {
+        var validationInterceptor = StatusValidationInterceptor();
 
-        _requestHeaders = RequestHeaders();
+        var clientBuilder = OkHttpClient().newBuilder()
+            .addInterceptor(headersInterceptor)
+            .addInterceptor(validationInterceptor);
 
-//        if(BuildConfig.DEBUG)
-        val logging = HttpLoggingInterceptor()
-        logging.level = HttpLoggingInterceptor.Level.BASIC;
+//        if(BuildConfig.DEBUG) {
+//            val logging = HttpLoggingInterceptor()
+//            logging.level = HttpLoggingInterceptor.Level.BASIC;
+//            clientBuilder.addInterceptor(logging);
+//        }
 
-        var client : OkHttpClient = OkHttpClient().newBuilder()
-                                        .addInterceptor(headersInterceptor)
-                                        .addInterceptor(logging)
-                                        .build();
+        var client : OkHttpClient = clientBuilder.build();
 
         _retrofitClient = Retrofit.Builder()
             .client(client)
@@ -61,6 +65,7 @@ open class RetrofitClientBase : IHttpClient
 
         var iAuthOperations : IAuthOperationsService = _retrofitClient.create(IAuthOperationsService::class.java);
         _authOperations = AuthOperations(iAuthOperations);
+        _baseUri = baseUri;
     }
 
     private val headersInterceptor = Interceptor { chain ->
@@ -75,18 +80,32 @@ open class RetrofitClientBase : IHttpClient
         chain.proceed(request.build());
     }
 
+    override suspend fun authenticateFromCredentials(username: String, password: String,scope:String): AuthenticationResponse
+    {
+        var response : AuthenticationResponse = AuthenticationResponse();
+
+        runBlocking {
+            response = _authOperations.authenticateFromCredentials("password", username, password, "rasters", scope).await();
+        }
+
+        _requestHeaders.authorization = "Bearer " + response.access_token;
+        return response;
+    }
+
     override suspend fun authenticateFromCredentials(username: String, password: String): AuthenticationResponse
     {
         var response : AuthenticationResponse = AuthenticationResponse();
+
         runBlocking {
-            response = _authOperations.authenticateFromCredentials("password", username, password, "rasters", "offline_access").await();
+            response = authenticateFromCredentials(username, password, "offline_access");
         }
+
         _requestHeaders.authorization = "Bearer " + response.access_token;
         return response;
     }
 
     override suspend fun authenticateFromBearerToken(bearerToken: String) {
-        _requestHeaders.authorization = "Bearer" + bearerToken;
+        _requestHeaders.authorization = "Bearer " + bearerToken;
     }
 
     override suspend fun authenticateFromRefreshToken(refreshToken: String): AuthenticationResponse
