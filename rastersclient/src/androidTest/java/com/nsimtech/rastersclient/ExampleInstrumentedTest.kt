@@ -21,12 +21,12 @@ import java.util.*
 class ExampleInstrumentedTest
 {
 
-    var _url : String = "https://api.rasters.io";
-    var _username : String = "{ Your username here }";
-    var _mobileusername : String = "{ Your mobile username here }";
-    var _validPin : String = "{ Your pin here }";
-    var _password : String = "{ Your password here }";
-    var _mapkey : UUID = UUID.fromString("{ Your mapkey here }");
+    var _url : String = "https://backend.nsimtech.com:8443";
+    var _username : String = "support@nsimtech.com";
+    var _mobileusername : String = "supportmobile@nsimtech.com";
+    var _validPin : String = "123456";
+    var _password : String = "MErDQ95gKUr";
+    var _mapkey : UUID = UUID.fromString("ff07a38c-d18e-48f6-85cc-1b9cf146b575");
 
     @Test
     fun rastersClient_AuthenticateByCredentials_ShouldReturnAccessTokenAndRefreshToken()

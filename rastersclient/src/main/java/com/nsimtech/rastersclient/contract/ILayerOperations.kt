@@ -4,5 +4,5 @@ import com.nsimtech.rastersclient.data.User
 import kotlinx.coroutines.Deferred
 
 interface  ILayerOperations {
-    suspend fun getMe(): Deferred<User>;
+    suspend fun getLayers(): Deferred<User>;
 }

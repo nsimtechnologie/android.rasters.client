@@ -119,4 +119,8 @@ open class RetrofitClientBase : IHttpClient
         return response
     }
 
+    fun dispose()
+    {
+    }
+
 }

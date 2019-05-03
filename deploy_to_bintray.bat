@@ -1,0 +1,1 @@
+gradle clean build bintrayUpload -PbintrayUser=nsimtech -PbintrayKey=0d271819fef633e90e9a82b47583491b2c6c902f -PdryRun=false

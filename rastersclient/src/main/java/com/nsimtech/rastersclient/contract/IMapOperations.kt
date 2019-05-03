@@ -9,4 +9,5 @@ import java.util.*
 interface  IMapOperations {
     suspend fun getMapLayers(mapkey: UUID): Deferred<List<Layer>>
     suspend fun getMaps(): Deferred<List<com.nsimtech.rastersclient.data.Map>>
+
 }

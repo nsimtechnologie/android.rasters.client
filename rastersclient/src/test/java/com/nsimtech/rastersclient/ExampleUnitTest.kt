@@ -1,15 +1,26 @@
 package com.nsimtech.rastersclient
 
 import com.nsimtech.rastersclient.data.*
+import com.nsimtech.rastersclient.data.Geometry
 import com.nsimtech.rastersclient.data.Map
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
+import io.data2viz.geojson.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.json.*
+import kotlinx.serialization.parse
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.junit.Assert
 import org.junit.Test
+import org.json.JSONObject
+import org.json.JSONString
 
 import org.junit.Assert.*
 import java.util.*
+
+
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -18,12 +29,15 @@ import java.util.*
  */
 class ExampleUnitTest {
 
-    var _url : String = "https://api.rasters.io";
-    var _username : String = "{ Your username here }";
-    var _mobileusername : String = "{ Your mobile username here }";
-    var _validPin : String = "{ Your pin here }";
-    var _password : String = "{ Your password here }";
-    var _mapkey : UUID = UUID.fromString("{ Your mapkey here }");
+    var _url : String = "https://backend.nsimtech.com:8443";
+    var _username : String = "support@nsimtech.com";
+    var _mobileusername : String = "supportmobile@nsimtech.com";
+    var _validPin : String = "123456";
+    var _password : String = "MErDQ95gKUr";
+    var _mapkey : UUID = UUID.fromString("ff07a38c-d18e-48f6-85cc-1b9cf146b575");
+    var _organization : UUID = UUID.fromString("085c62bc-0769-4554-81ef-a1ba7ddcd552");
+    var _iotLayerId : UUID = UUID.fromString("dd6f1fbb-68b0-47cc-80f4-b38b83ff18d1");
+    var _annotationLayerId : UUID = UUID.fromString("cab75d73-5b0c-4fe8-aa43-4adc26553b1a");
 
     @Test
     fun rastersClient_AuthenticateByCredentials_ShouldReturnAccessTokenAndRefreshToken()
@@ -167,7 +181,147 @@ class ExampleUnitTest {
         }
 
         assertTrue(user != null);
-        assertEquals(user!!.pin,_validPin);
+    }
+
+    @Test
+    fun rastersClient_IotQueryOperations_GetByMap()
+    {
+        val client = buildAuthRasterClient();
+
+        var maps : List<Map>? = null;
+
+        runBlocking {
+            maps = client.maps.getMaps().await();
+        }
+
+        var map : Map? = maps!!.firstOrNull();
+
+        var iotReceived : List<IotReceived>? = null;
+
+        runBlocking {
+            iotReceived = client.iotQuery.getByMap(map!!.mapKey!!).await();
+        }
+
+        assertTrue(iotReceived != null);
+        assertTrue(iotReceived!!.count() > 0);
+    }
+
+    @Test
+    fun rastersClient_IotQueryOperations_GetById()
+    {
+        var client = buildAuthRasterClient();
+
+        var iotReceived : IotReceived? = null;
+        var dataKey = IotDataKey("5123",UUID.fromString("e84ad208-4116-4288-a751-93a5164c933d"));
+
+        runBlocking {
+            iotReceived = client.iotQuery.getById(dataKey).await();
+        }
+
+        assertTrue(iotReceived != null);
+    }
+
+    @Test
+    fun rastersClient_IotQueryOperations_QueryCurrent()
+    {
+        var client = buildAuthRasterClient();
+
+        var queryResult : QueryResult<IotReceived>? = null;
+
+        var query = IotQueryModel();
+        query.limit = 5;
+        query.filters =  JSONObject("{ 'data.current_status' : {\$eq : 2} }");
+        query.layerId = _iotLayerId;
+
+        runBlocking {
+            queryResult = client.iotQuery.queryCurrent(query).await();
+        }
+
+        assertTrue(queryResult != null);
+    }
+
+    @Test
+    fun rastersClient_IotIngestionOperations_UpsertSingleIotData()
+    {
+        var client = buildAuthRasterClient();
+
+        var iotData = CreatePoint("my point1",listOf(-71.254028, 46.829853));
+        runBlocking {
+            var success = client.iotIngestion.upsertIotData(iotData).await();
+        }
+
+        var iotReceived : IotReceived? = null;
+        runBlocking {
+            iotReceived = client.iotQuery.getById(iotData.id!!).await();
+        }
+
+        assertTrue(iotReceived != null);
+    }
+
+    @Test
+    fun rastersClient_IotIngestionOperations_UpsertMultipleIotData()
+    {
+        var client = buildAuthRasterClient();
+
+        var iotData1 :IotData = CreatePoint("my point1",listOf(-71.254028, 46.829823));
+        var iotData2 :IotData= CreatePoint("my point2",listOf(-71.254028, 46.829853));
+        var iotList : List<IotData> = listOf(iotData1,iotData2);
+
+        runBlocking {
+            client.iotIngestion.upsertIotData(iotList).await();
+        }
+
+        var iot1Received : IotReceived? = null;
+        var iot2Received : IotReceived? = null;
+        runBlocking {
+            iot1Received = client.iotQuery.getById(iotData1.id!!).await();
+            iot2Received = client.iotQuery.getById(iotData2.id!!).await();
+        }
+
+        assertTrue(iot1Received != null);
+        assertTrue(iot2Received != null);
+    }
+
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun rastersClient_IotIngestionOperations_UpsertIotReceived() {
+
+        var client = buildAuthRasterClient();
+
+        var iotData1 :IotData = CreatePoint("my point1", listOf(-71.254028, 46.829853));
+
+        var iotReceived : IotReceived = IotReceived();
+        iotReceived.data = iotData1;
+        iotReceived.key = IotByLayerKey(iotData1.id,_annotationLayerId);
+        iotReceived.style =  JSON.parse<Any>("{'icon':'circle'}");
+
+        runBlocking {
+            client.iotIngestion.upsertIotReceived(iotReceived).await();
+        }
+    }
+
+
+
+    @Test
+    fun rastersClient_IotIngestionOperations_AddGetAttachment()
+    {
+        var client = buildAuthRasterClient();
+
+        var link : FileLink? = null;
+        var getLink : FileLink? = null;
+        var dataKey = IotDataKey("5123",UUID.fromString("e84ad208-4116-4288-a751-93a5164c933d"));
+
+        runBlocking {
+            link = client.iotIngestion.addAttachment(dataKey,"unit-test.png").await();
+        }
+
+        runBlocking {
+            getLink = client.iotIngestion.getAttachment(dataKey,"unit-test.png").await();
+        }
+
+        assertTrue(link != null);
+        assertTrue(getLink != null);
     }
 
     private fun buildRasterClient(): RastersClient {
@@ -182,5 +336,21 @@ class ExampleUnitTest {
         }
 
         return rastersClient;
+    }
+
+    private fun CreatePoint(id:String,coordinates:List<Double>) : IotData
+    {
+        var iotData = IotData();
+        iotData.id = IotDataKey(id,_annotationLayerId);
+        iotData.is_feature = true;
+        iotData.type = "unit-test";
+        iotData.device_name = id;
+
+        iotData.geometry = Geometry(coordinates);
+        iotData.date = "2019-05-03 00:00:00";
+        iotData.`data` = JSONObject("{'prop':1234}");
+        iotData.bindings = null
+
+        return iotData;
     }
 }

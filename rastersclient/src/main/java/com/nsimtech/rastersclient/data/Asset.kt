@@ -30,7 +30,7 @@ data class Asset (
     val id: java.util.UUID? = null,
     val name: kotlin.String? = null,
     val bindings: kotlin.Any? = null,
-    val creationDate: java.time.LocalDateTime? = null,
+    val creationDate: String? = null,
     val createdBy: kotlin.String? = null,
     val organizationId: java.util.UUID? = null,
     val organization: Organization? = null,

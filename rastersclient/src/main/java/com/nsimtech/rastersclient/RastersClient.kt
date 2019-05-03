@@ -13,22 +13,28 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
     private var _map : IMapOperations;
     private var _organization : IOrganizationOperations;
     private var _user : IUserOperations;
+    private var _iotQuery : IIotQueryOperations;
+    private var _iotIngestion : IIotIngestionOperations;
 
     constructor(baseUri: String, organizationId: UUID, authToken: String) : this(baseUri){}
 
     constructor(baseUri: String) : super (baseUri)
     {
-        var iAccountOperations : IAccountOperationsService = retrofitClient!!.create(IAccountOperationsService::class.java);
-        var iAssetOperations : IAssetOperationsService = retrofitClient!!.create(IAssetOperationsService::class.java);
-        var iMapOperations : IMapOperationsService = retrofitClient!!.create(IMapOperationsService::class.java);
-        var iOrganizationOperations : IOrganizationOperationsService = retrofitClient!!.create(IOrganizationOperationsService::class.java);
-        var iUserOperations : IUserOperationsService = retrofitClient!!.create(IUserOperationsService::class.java);
+        val iAccountOperations : IAccountOperationsService = retrofitClient!!.create(IAccountOperationsService::class.java);
+        val iAssetOperations : IAssetOperationsService = retrofitClient!!.create(IAssetOperationsService::class.java);
+        val iMapOperations : IMapOperationsService = retrofitClient!!.create(IMapOperationsService::class.java);
+        val iOrganizationOperations : IOrganizationOperationsService = retrofitClient!!.create(IOrganizationOperationsService::class.java);
+        val iUserOperations : IUserOperationsService = retrofitClient!!.create(IUserOperationsService::class.java);
+        val iIotQueryOperations : IIotQueryOperationsService = retrofitClient!!.create(IIotQueryOperationsService::class.java);
+        val iIotIngestionOperations : IIotIngestionOperationsService = retrofitClient!!.create(IIotIngestionOperationsService::class.java);
 
         _account = AccountOperations(iAccountOperations);
         _asset = AssetOperations(iAssetOperations);
         _map = MapOperations(iMapOperations);
         _organization = OrganizationOperations(iOrganizationOperations);
         _user = UserOperations(iUserOperations);
+        _iotQuery = IotQueryOperations(iIotQueryOperations);
+        _iotIngestion = IotIngestionOperations(iIotIngestionOperations);
     }
 
     override var account: IAccountOperations
@@ -52,6 +58,14 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
         get() = _user
         set(value) {}
 
+    override var iotQuery: IIotQueryOperations
+        get() = _iotQuery
+        set(value) {}
+
+    override var iotIngestion: IIotIngestionOperations
+        get() = _iotIngestion
+        set(value) {}
+
     override fun asOrganization(orgId: UUID): IRastersClient {
         return RastersClient(baseUri,orgId,requestHeaders!!.authorization);
     }
@@ -61,14 +75,13 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
         runBlocking {
             impersonatedUser = _user.getImpersonatedUser(pin).await();
         }
-        var client: RastersClient = RastersClient(baseUri);
+        val client: RastersClient = RastersClient(baseUri);
 
         if(impersonatedUser != null) {
             runBlocking {
                 var response = client.authenticateFromCredentials(impersonatedUser!!.user!!.userName,impersonatedUser!!.tempPassword!!,"impersonification");
             }
         }
-
         return client;
     }
 }

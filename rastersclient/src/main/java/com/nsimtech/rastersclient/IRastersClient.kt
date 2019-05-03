@@ -13,15 +13,12 @@ interface IRastersClient : IHttpClient
     var assets: IAssetOperations;
     var maps: IMapOperations;
     var users: IUserOperations;
+    var iotIngestion: IIotIngestionOperations;
+    var iotQuery: IIotQueryOperations;
 
 //    var layers: ILayerOperations;
-
 //    var Events: IEventOperations;
 //    var Connectors: IConnectorOperations;
 //    var Geocoding: IGeocodingOperations;
-//    var IotIngestion: IIotIngestionOperations;
-//    var IotQuery: IIotQueryOperations;
-//
-//
 
 }
