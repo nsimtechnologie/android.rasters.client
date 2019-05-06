@@ -13,6 +13,9 @@ package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.AssetDevice
 import com.nsimtech.rastersclient.data.Organization
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 /**
  * 
@@ -26,12 +29,15 @@ import com.nsimtech.rastersclient.data.Organization
  * @param assetDevices 
  * @param deviceCount 
  */
+@Serializable
 data class Asset (
+    @Serializable(with = UUIDSerializer::class)
     val id: java.util.UUID? = null,
     val name: kotlin.String? = null,
-    val bindings: kotlin.Any? = null,
+    val bindings: JsonObject? = null,
     val creationDate: String? = null,
     val createdBy: kotlin.String? = null,
+    @Serializable(with = UUIDSerializer::class)
     val organizationId: java.util.UUID? = null,
     val organization: Organization? = null,
     val assetDevices: kotlin.Array<AssetDevice>? = null,

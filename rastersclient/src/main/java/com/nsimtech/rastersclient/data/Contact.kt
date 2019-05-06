@@ -11,12 +11,15 @@
 */
 package com.nsimtech.rastersclient.data
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * 
  * @param phoneNumber 
  * @param email 
  */
+@Serializable
 data class Contact (
     val phoneNumber: kotlin.String? = null,
     val email: kotlin.String? = null

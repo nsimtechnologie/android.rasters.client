@@ -13,6 +13,9 @@ package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.Attachment
 import com.nsimtech.rastersclient.data.IotDataKey
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 /**
  * 
@@ -29,19 +32,21 @@ import com.nsimtech.rastersclient.data.IotDataKey
  * @param isLocked 
  * @param bindings 
  */
+@Serializable
 data class IIotData (
     val id: IotDataKey? = null,
     val isFeature: kotlin.Boolean? = null,
     val type: kotlin.String? = null,
     val deviceName: kotlin.String? = null,
-    val geometry: kotlin.Any? = null,
+    val geometry: JsonObject? = null,
     val date: String? = null,
-    val `data`: kotlin.Any? = null,
-    val metadata: kotlin.Any? = null,
+    val `data`: JsonObject? = null,
+    val metadata: JsonObject? = null,
+    @ContextualSerialization
     val attachments: kotlin.Array<Attachment>? = null,
     val isShared: kotlin.Boolean? = null,
     val isLocked: kotlin.Boolean? = null,
-    val bindings: kotlin.Any? = null
+    val bindings: JsonObject? = null
 ) {
 
 }

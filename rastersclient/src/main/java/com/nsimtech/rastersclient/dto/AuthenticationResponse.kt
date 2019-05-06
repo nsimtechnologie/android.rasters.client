@@ -1,5 +1,8 @@
 package com.nsimtech.rastersclient.dto
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 public class AuthenticationResponse
 {
     var token_type: String = "";

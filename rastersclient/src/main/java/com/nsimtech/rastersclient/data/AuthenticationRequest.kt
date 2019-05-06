@@ -11,14 +11,20 @@
 */
 package com.nsimtech.rastersclient.data
 
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
+
 
 /**
  * 
  * @param accesstoken 
  * @param mapkey 
  */
+@Serializable
 data class AuthenticationRequest (
     val accesstoken: kotlin.String? = null,
+    @Serializable(with = UUIDSerializer::class)
     val mapkey: java.util.UUID? = null
 ) {
 

@@ -11,6 +11,8 @@
 */
 package com.nsimtech.rastersclient.data
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * 
@@ -19,6 +21,7 @@ package com.nsimtech.rastersclient.data
  * @param skip 
  * @param total 
  */
+@Serializable
 data class QueryResult<T> (
     val items: kotlin.Array<T>? = null,
     val limit: kotlin.Int? = null,

@@ -13,6 +13,8 @@ package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.Address
 import com.nsimtech.rastersclient.data.Contact
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 
 /**
  * 
@@ -20,9 +22,12 @@ import com.nsimtech.rastersclient.data.Contact
  * @param address 
  * @param contact 
  */
+@Serializable
 data class OrganizationEntry (
     val name: kotlin.String,
+    @ContextualSerialization
     val address: Address? = null,
+    @ContextualSerialization
     val contact: Contact? = null
 ) {
 

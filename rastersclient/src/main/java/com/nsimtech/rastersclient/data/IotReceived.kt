@@ -11,13 +11,11 @@
 */
 package com.nsimtech.rastersclient.data
 
-import com.fasterxml.jackson.annotation.JsonValue
-import com.google.gson.annotations.SerializedName
-import com.nsimtech.rastersclient.data.IIotData
-import com.nsimtech.rastersclient.data.IotByLayerKey
+import com.nsimtech.rastersclient.data.Serializer.JsonSerializer
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
-import org.json.JSONObject
 
 /**
  * 
@@ -28,13 +26,14 @@ import org.json.JSONObject
  * @param style 
  * @param projectedFields 
  */
+@Serializable
 data class IotReceived (
     var data: IotData? = null,
     var key: IotByLayerKey? = null,
     var text: kotlin.String? = null,
     var orientation: kotlin.Int? = null,
-    var style: Any? = null,
-    var projectedFields: JSONObject? = null
+    var style: JsonElement? = null,
+    var projectedFields: JsonElement? = null
 ) {
 
 }

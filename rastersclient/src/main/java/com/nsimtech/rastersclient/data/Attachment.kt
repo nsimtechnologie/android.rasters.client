@@ -14,6 +14,9 @@ package com.nsimtech.rastersclient.data
 import com.nsimtech.rastersclient.data.IotDataKey
 
 import com.squareup.moshi.Json
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
+
 /**
  * 
  * @param id 
@@ -23,9 +26,11 @@ import com.squareup.moshi.Json
  * @param lastUpdate 
  * @param snapshot 
  */
+@Serializable
 data class Attachment (
     val id: IotDataKey? = null,
     val filename: kotlin.String? = null,
+    @ContextualSerialization
     val status: Attachment.Status? = null,
     val size: kotlin.Double? = null,
     val lastUpdate: String? = null,

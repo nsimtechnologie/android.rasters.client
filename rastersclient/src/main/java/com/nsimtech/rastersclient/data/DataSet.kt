@@ -12,7 +12,12 @@
 package com.nsimtech.rastersclient.data
 
 
+import com.nsimtech.rastersclient.data.Serializer.DatasetStatusSerializer
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
 import com.squareup.moshi.Json
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
+
 /**
  * 
  * @param id 
@@ -29,10 +34,9 @@ import com.squareup.moshi.Json
  * @param processingType 
  * @param isRaster 
  */
+@Serializable
 data class DataSet (
-    val id: java.util.UUID? = null,
     val type: kotlin.String? = null,
-    val status: DataSet.Status? = null,
     val beginDate: String? = null,
     val endDate: String? = null,
     val nbFiles: kotlin.Int? = null,
@@ -42,7 +46,13 @@ data class DataSet (
     val error: kotlin.String? = null,
     val metadata: kotlin.String? = null,
     val processingType: kotlin.Int? = null,
-    val isRaster: kotlin.Boolean? = null
+    val isRaster: kotlin.Boolean? = null,
+
+    @Serializable(with = UUIDSerializer::class)
+    val id: java.util.UUID? = null,
+
+    @Serializable(with = DatasetStatusSerializer::class)
+    val status: DataSet.Status? = null
 ) {
 
     /**
@@ -51,17 +61,17 @@ data class DataSet (
     */
     enum class Status(val value: kotlin.String){
 
-        @Json(name = "Error") error("Error"),
+        @Json(name = "Error") Error("Error"),
 
-        @Json(name = "NoData") noData("NoData"),
+        @Json(name = "NoData") NoData("NoData"),
 
-        @Json(name = "DataReceived") dataReceived("DataReceived"),
+        @Json(name = "DataReceived") DataReceived("DataReceived"),
 
-        @Json(name = "InAcquisition") inAcquisition("InAcquisition"),
+        @Json(name = "InAcquisition") InAcquisition("InAcquisition"),
 
-        @Json(name = "InProcessing") inProcessing("InProcessing"),
+        @Json(name = "InProcessing") InProcessing("InProcessing"),
 
-        @Json(name = "DataCompleted") dataCompleted("DataCompleted");
+        @Json(name = "DataCompleted") DataCompleted("DataCompleted");
     
     }
 

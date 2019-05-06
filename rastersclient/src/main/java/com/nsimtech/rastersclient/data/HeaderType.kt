@@ -11,12 +11,15 @@
 */
 package com.nsimtech.rastersclient.data
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * 
  * @param name 
  * @param value 
  */
+@Serializable
 data class HeaderType (
     val name: kotlin.String? = null,
     val value: kotlin.String? = null

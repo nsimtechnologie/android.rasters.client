@@ -14,7 +14,7 @@ interface IIotQueryOperationsService
     fun getByMap(@Path("mapkey") mapkey: UUID): Deferred<List<IotReceived>>
 
     @GET("IotStatuses/{connectorId}/{deviceId}")
-    fun getById(@Path("connectorId") connectorId: UUID,@Path("deviceId") deviceId: String ): Deferred<IotReceived>
+    fun getById(@Path("connectorId") connectorId: UUID,@Path("deviceId") deviceId: String ): Deferred<IotData>
 
     @POST("IotStatuses/query/status")
     fun queryCurrent(@Body query : IotQueryModel): Deferred<QueryResult<IotReceived>>

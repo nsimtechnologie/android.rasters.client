@@ -13,6 +13,9 @@ package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.Address
 import com.nsimtech.rastersclient.data.Contact
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 
 /**
  * 
@@ -23,10 +26,14 @@ import com.nsimtech.rastersclient.data.Contact
  * @param contact 
  * @param mapDemoId 
  */
+@Serializable
 data class Organization (
     val name: kotlin.String,
+    @Serializable(with = UUIDSerializer::class)
     val id: java.util.UUID? = null,
+    @ContextualSerialization
     val address: Address? = null,
+    @Serializable(with = UUIDSerializer::class)
     val userId: java.util.UUID? = null,
     val contact: Contact? = null,
     val mapDemoId: kotlin.String? = null

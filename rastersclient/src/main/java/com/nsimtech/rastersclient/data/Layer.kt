@@ -13,8 +13,13 @@ package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.DataSet
 import com.nsimtech.rastersclient.data.MapLayer
+import com.nsimtech.rastersclient.data.Serializer.LayerTypeSerializer
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
 
 import com.squareup.moshi.Json
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
+
 /**
  * 
  * @param name 
@@ -36,10 +41,9 @@ import com.squareup.moshi.Json
  * @param attributes 
  * @param id 
  */
+@Serializable
 data class Layer (
     val name: kotlin.String,
-    val type: Layer.Type,
-    val dataSetId: java.util.UUID,
     val theme: kotlin.String? = null,
     val projection: kotlin.String? = null,
     val size: kotlin.Double? = null,
@@ -49,12 +53,26 @@ data class Layer (
     val description: kotlin.String? = null,
     val isBaseLayer: kotlin.Boolean? = null,
     val priority: kotlin.Int? = null,
-    val organizationId: java.util.UUID? = null,
-    val connectorId: java.util.UUID? = null,
-    val mapLayers: kotlin.Array<MapLayer>? = null,
     val dataSet: DataSet? = null,
     val attributes: kotlin.String? = null,
-    val id: java.util.UUID? = null
+
+    @Serializable(with = UUIDSerializer::class)
+    val organizationId: java.util.UUID? = null,
+
+    @Serializable(with = UUIDSerializer::class)
+    val connectorId: java.util.UUID? = null,
+
+    @Serializable(with = UUIDSerializer::class)
+    val id: java.util.UUID? = null,
+
+    @Serializable(with = UUIDSerializer::class)
+    val dataSetId: java.util.UUID,
+
+    @ContextualSerialization
+    val mapLayers: kotlin.Array<MapLayer>? = null,
+
+    @Serializable(with = LayerTypeSerializer::class)
+    val type: Layer.Type
 ) {
 
     /**
@@ -62,16 +80,16 @@ data class Layer (
     * Values: raster,vector,`annotation`,collect,iot
     */
     enum class Type(val value: kotlin.String){
-    
-        @Json(name = "Raster") raster("Raster"),
-    
-        @Json(name = "Vector") vector("Vector"),
-    
-        @Json(name = "Annotation") `annotation`("Annotation"),
-    
-        @Json(name = "Collect") collect("Collect"),
-    
-        @Json(name = "Iot") iot("Iot");
+
+        @Json(name = "Raster") Raster("Raster"),
+
+        @Json(name = "Vector") Vector("Vector"),
+
+        @Json(name = "Annotation") Annotation("Annotation"),
+
+        @Json(name = "Collect") Collect("Collect"),
+
+        @Json(name = "Iot") Iot("Iot");
     
     }
 

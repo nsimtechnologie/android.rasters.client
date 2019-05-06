@@ -11,12 +11,15 @@
 */
 package com.nsimtech.rastersclient.data
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * 
  * @param name 
  * @param description 
  */
+@Serializable
 data class MapEntry (
     val name: kotlin.String,
     val description: kotlin.String? = null

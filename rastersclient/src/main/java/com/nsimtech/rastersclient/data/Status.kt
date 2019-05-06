@@ -11,12 +11,15 @@
 */
 package com.nsimtech.rastersclient.data
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * 
  * @param success 
  * @param message 
  */
+@Serializable
 data class Status (
     val success: kotlin.Boolean? = null,
     val message: kotlin.String? = null

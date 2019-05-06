@@ -1,5 +1,6 @@
 package com.nsimtech.rastersclient
 
+import com.google.gson.Gson
 import com.nsimtech.rastersclient.data.*
 import com.nsimtech.rastersclient.data.Geometry
 import com.nsimtech.rastersclient.data.Map
@@ -36,7 +37,7 @@ class ExampleUnitTest {
     var _password : String = "MErDQ95gKUr";
     var _mapkey : UUID = UUID.fromString("ff07a38c-d18e-48f6-85cc-1b9cf146b575");
     var _organization : UUID = UUID.fromString("085c62bc-0769-4554-81ef-a1ba7ddcd552");
-    var _iotLayerId : UUID = UUID.fromString("dd6f1fbb-68b0-47cc-80f4-b38b83ff18d1");
+    var _iotLayerId : UUID = UUID.fromString("ef22eb20-b712-4167-b601-ebc425f968d1");
     var _annotationLayerId : UUID = UUID.fromString("cab75d73-5b0c-4fe8-aa43-4adc26553b1a");
 
     @Test
@@ -211,8 +212,8 @@ class ExampleUnitTest {
     {
         var client = buildAuthRasterClient();
 
-        var iotReceived : IotReceived? = null;
-        var dataKey = IotDataKey("5123",UUID.fromString("e84ad208-4116-4288-a751-93a5164c933d"));
+        var iotReceived : IotData? = null;
+        var dataKey = IotDataKey("8030",UUID.fromString("e84ad208-4116-4288-a751-93a5164c933d"));
 
         runBlocking {
             iotReceived = client.iotQuery.getById(dataKey).await();
@@ -230,7 +231,7 @@ class ExampleUnitTest {
 
         var query = IotQueryModel();
         query.limit = 5;
-        query.filters =  JSONObject("{ 'data.current_status' : {\$eq : 2} }");
+        query.filters = json{"data.current_status" to json{"\$eq" to JsonLiteral(2)}};  //JSONObject("{ 'data.current_status' : {\$eq : 2} }");
         query.layerId = _iotLayerId;
 
         runBlocking {
@@ -250,7 +251,7 @@ class ExampleUnitTest {
             var success = client.iotIngestion.upsertIotData(iotData).await();
         }
 
-        var iotReceived : IotReceived? = null;
+        var iotReceived : IotData? = null;
         runBlocking {
             iotReceived = client.iotQuery.getById(iotData.id!!).await();
         }
@@ -271,8 +272,8 @@ class ExampleUnitTest {
             client.iotIngestion.upsertIotData(iotList).await();
         }
 
-        var iot1Received : IotReceived? = null;
-        var iot2Received : IotReceived? = null;
+        var iot1Received : IotData? = null;
+        var iot2Received : IotData? = null;
         runBlocking {
             iot1Received = client.iotQuery.getById(iotData1.id!!).await();
             iot2Received = client.iotQuery.getById(iotData2.id!!).await();
@@ -289,12 +290,12 @@ class ExampleUnitTest {
 
         var client = buildAuthRasterClient();
 
-        var iotData1 :IotData = CreatePoint("my point1", listOf(-71.254028, 46.829853));
+        var iotData1 :IotData = CreatePoint("my point2", listOf(-71.254028, 46.829853));
 
         var iotReceived : IotReceived = IotReceived();
         iotReceived.data = iotData1;
         iotReceived.key = IotByLayerKey(iotData1.id,_annotationLayerId);
-        iotReceived.style =  JSON.parse<Any>("{'icon':'circle'}");
+        //iotReceived.style = json{"icon" to JsonLiteral("circle")};
 
         runBlocking {
             client.iotIngestion.upsertIotReceived(iotReceived).await();
@@ -348,7 +349,7 @@ class ExampleUnitTest {
 
         iotData.geometry = Geometry(coordinates);
         iotData.date = "2019-05-03 00:00:00";
-        iotData.`data` = JSONObject("{'prop':1234}");
+        iotData.`data` = json{"prop" to JsonLiteral("1234")}; //JSONObject("{'prop':1234}");
         iotData.bindings = null
 
         return iotData;

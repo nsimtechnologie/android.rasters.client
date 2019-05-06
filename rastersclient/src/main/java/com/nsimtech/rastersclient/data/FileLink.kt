@@ -12,6 +12,8 @@
 package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.HeaderType
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 
 /**
  * 
@@ -19,6 +21,7 @@ import com.nsimtech.rastersclient.data.HeaderType
  * @param method 
  * @param headers 
  */
+@Serializable
 data class FileLink (
     val uri: kotlin.String? = null,
     val method: kotlin.String? = null,

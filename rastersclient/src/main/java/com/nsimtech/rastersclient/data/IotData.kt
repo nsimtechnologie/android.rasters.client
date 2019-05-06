@@ -11,10 +11,9 @@
 */
 package com.nsimtech.rastersclient.data
 
-import com.nsimtech.rastersclient.data.IotDataKey
-import io.data2viz.geojson.jackson.Point
-import kotlinx.serialization.json.Json
-import org.json.JSONObject
+import com.nsimtech.rastersclient.data.Serializer.JsonSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 /**
  * 
@@ -27,15 +26,19 @@ import org.json.JSONObject
  * @param &#x60;data&#x60; 
  * @param bindings 
  */
+@Serializable
 data class IotData (
     var id: IotDataKey? = null,
     var is_feature: kotlin.Boolean? = null,
+    var is_shared: kotlin.Boolean? = null,
+    var is_locked: kotlin.Boolean? = null,
     var type: kotlin.String? = null,
     var device_name: kotlin.String? = null,
     var geometry: Geometry? = null,
     var date: String? = null,
-    var `data`: JSONObject? = null,
-    var bindings: String? = null
+    var data: JsonElement? = null,
+    var bindings: JsonElement? = null,
+    var metadata: JsonElement? = null
 ) {
 
 }

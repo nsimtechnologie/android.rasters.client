@@ -11,6 +11,12 @@
 */
 package com.nsimtech.rastersclient.data
 
+import com.google.gson.Gson
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import org.json.JSONObject
 import org.json.JSONStringer
 
@@ -21,10 +27,12 @@ import org.json.JSONStringer
  * @param limit 
  * @param filters 
  */
+@Serializable
 data class IotQueryModel (
+    @Serializable(with = UUIDSerializer::class)
     var layerId: java.util.UUID? = null,
     var limit: kotlin.Int? = null,
-    var filters: JSONObject? = null
+    var filters: JsonObject? = null
 ) {
 
 }

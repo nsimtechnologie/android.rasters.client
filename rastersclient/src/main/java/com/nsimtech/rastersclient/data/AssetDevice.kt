@@ -12,13 +12,17 @@
 package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.IotDataKey
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.Serializable
 
 /**
  * 
  * @param assetId 
  * @param deviceId 
  */
+@Serializable
 data class AssetDevice (
+    @Serializable(with = UUIDSerializer::class)
     val assetId: java.util.UUID? = null,
     val deviceId: IotDataKey? = null
 ) {

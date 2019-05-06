@@ -11,6 +11,11 @@
 */
 package com.nsimtech.rastersclient.data
 
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+
 
 /**
  * 
@@ -18,10 +23,12 @@ package com.nsimtech.rastersclient.data
  * @param limit 
  * @param filters 
  */
+@Serializable
 data class EventQueryModel (
+    @Serializable(with = UUIDSerializer::class)
     val mapKey: java.util.UUID? = null,
     val limit: kotlin.Int? = null,
-    val filters: kotlin.Any? = null
+    val filters: JsonObject? = null
 ) {
 
 }

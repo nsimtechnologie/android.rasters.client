@@ -12,14 +12,19 @@
 package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.IotDataKey
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
 
 /**
  * 
  * @param iotDataKey 
  * @param layerId 
  */
+@Serializable
 data class IotByLayerKey (
     val iotDataKey: IotDataKey? = null,
+    @Serializable(with = UUIDSerializer::class)
     val layerId: java.util.UUID? = null
 ) {
 

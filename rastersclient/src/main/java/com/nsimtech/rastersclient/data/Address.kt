@@ -1,11 +1,15 @@
 package com.nsimtech.rastersclient.data
 
-data class Address(val address: String)
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Address(
+    var address1 : String? = null,
+    var address2: String? = null,
+    var country: String? = null,
+    var state: String? = null,
+    var city: String? = null,
+    var zipCode: String? = null)
 {
-    var address1 : String = address;
-    var address2: String = "";
-    var country: String = "";
-    var state: String = "";
-    var city: String = "";
-    var zipCode: String = "";
+
 }

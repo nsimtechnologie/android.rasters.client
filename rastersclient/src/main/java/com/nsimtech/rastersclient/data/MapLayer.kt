@@ -11,14 +11,20 @@
 */
 package com.nsimtech.rastersclient.data
 
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
+import kotlinx.serialization.Serializable
+
 
 /**
  * 
  * @param mapId 
  * @param layerId 
  */
+@Serializable
 data class MapLayer (
+    @Serializable(with = UUIDSerializer::class)
     val mapId: java.util.UUID? = null,
+    @Serializable(with = UUIDSerializer::class)
     val layerId: java.util.UUID? = null
 ) {
 

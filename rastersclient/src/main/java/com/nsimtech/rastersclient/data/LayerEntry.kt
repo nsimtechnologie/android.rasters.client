@@ -12,7 +12,11 @@
 package com.nsimtech.rastersclient.data
 
 
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
 import com.squareup.moshi.Json
+import kotlinx.serialization.ContextualSerialization
+import kotlinx.serialization.Serializable
+
 /**
  * 
  * @param name 
@@ -24,14 +28,17 @@ import com.squareup.moshi.Json
  * @param priority 
  * @param connectorId 
  */
+@Serializable
 data class LayerEntry (
     val name: kotlin.String,
+    @ContextualSerialization
     val type: LayerEntry.Type,
     val theme: kotlin.String? = null,
     val projection: kotlin.String? = null,
     val size: kotlin.Double? = null,
     val description: kotlin.String? = null,
     val priority: kotlin.Int? = null,
+    @Serializable(with = UUIDSerializer::class)
     val connectorId: java.util.UUID? = null
 ) {
 

@@ -1,6 +1,7 @@
 package com.nsimtech.rastersclient
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.nsimtech.rastersclient.service.IAuthOperations
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
 import com.nsimtech.rastersclient.data.RequestHeaders
@@ -8,7 +9,10 @@ import com.nsimtech.rastersclient.interceptor.StatusValidationInterceptor
 import com.nsimtech.rastersclient.service.AuthOperations
 import com.nsimtech.rastersclient.service.IAuthOperationsService
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -54,12 +58,16 @@ open class RetrofitClientBase : IHttpClient
 //            clientBuilder.addInterceptor(logging);
 //        }
 
+        val contentType = MediaType.get("application/json")
         var client : OkHttpClient = clientBuilder.build();
+        var JsonConverterFactory = Json.nonstrict.asConverterFactory(contentType);
+//        JsonConverterFactory. JSON.nonstrict;
 
         _retrofitClient = Retrofit.Builder()
             .client(client)
             .baseUrl(baseUri)
-            .addConverterFactory(GsonConverterFactory.create())
+            //.addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(JsonConverterFactory)
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build();
 
