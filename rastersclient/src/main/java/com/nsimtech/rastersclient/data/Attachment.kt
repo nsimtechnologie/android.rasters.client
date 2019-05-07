@@ -12,10 +12,12 @@
 package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.IotDataKey
+import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 
 import com.squareup.moshi.Json
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
+import java.util.*
 
 /**
  * 
@@ -33,7 +35,10 @@ data class Attachment (
     @ContextualSerialization
     val status: Attachment.Status? = null,
     val size: kotlin.Double? = null,
-    val lastUpdate: String? = null,
+
+    @Serializable(with = DateSerializer::class)
+    val lastUpdate: Date? = null,
+
     val snapshot: kotlin.String? = null
 ) {
 

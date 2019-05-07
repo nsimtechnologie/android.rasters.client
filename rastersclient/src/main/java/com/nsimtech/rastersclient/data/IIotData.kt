@@ -13,9 +13,11 @@ package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.Attachment
 import com.nsimtech.rastersclient.data.IotDataKey
+import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import java.util.*
 
 /**
  * 
@@ -39,7 +41,10 @@ data class IIotData (
     val type: kotlin.String? = null,
     val deviceName: kotlin.String? = null,
     val geometry: JsonObject? = null,
-    val date: String? = null,
+
+    @Serializable(with = DateSerializer::class)
+    val date: Date? = null,
+
     val `data`: JsonObject? = null,
     val metadata: JsonObject? = null,
     @ContextualSerialization

@@ -19,6 +19,7 @@ import org.json.JSONObject
 import org.json.JSONString
 
 import org.junit.Assert.*
+import java.text.DateFormat
 import java.util.*
 
 
@@ -348,7 +349,7 @@ class ExampleUnitTest {
         iotData.device_name = id;
 
         iotData.geometry = Geometry(coordinates);
-        iotData.date = "2019-05-03 00:00:00";
+        iotData.date = GregorianCalendar(2019,4,3).time;
         iotData.`data` = json{"prop" to JsonLiteral("1234")}; //JSONObject("{'prop':1234}");
         iotData.bindings = null
 

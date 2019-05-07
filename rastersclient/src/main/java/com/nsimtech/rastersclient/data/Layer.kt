@@ -13,12 +13,14 @@ package com.nsimtech.rastersclient.data
 
 import com.nsimtech.rastersclient.data.DataSet
 import com.nsimtech.rastersclient.data.MapLayer
+import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 import com.nsimtech.rastersclient.data.Serializer.LayerTypeSerializer
 import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
 
 import com.squareup.moshi.Json
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
+import java.util.*
 
 /**
  * 
@@ -48,8 +50,13 @@ data class Layer (
     val projection: kotlin.String? = null,
     val size: kotlin.Double? = null,
     val owner: kotlin.String? = null,
-    val creationDate: String? = null,
-    val updatedDate: String? = null,
+
+    @Serializable(with = DateSerializer::class)
+    val creationDate: Date? = null,
+
+    @Serializable(with = DateSerializer::class)
+    val updatedDate: Date? = null,
+
     val description: kotlin.String? = null,
     val isBaseLayer: kotlin.Boolean? = null,
     val priority: kotlin.Int? = null,

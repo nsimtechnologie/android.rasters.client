@@ -11,6 +11,10 @@
 */
 package com.nsimtech.rastersclient.data
 
+import com.nsimtech.rastersclient.data.Serializer.DateSerializer
+import kotlinx.serialization.Serializable
+import java.util.*
+
 
 /**
  * 
@@ -20,7 +24,10 @@ package com.nsimtech.rastersclient.data
  */
 data class HealthStatus (
     val isHealthy: kotlin.Boolean? = null,
-    val lastUpdate: String? = null,
+
+    @Serializable(with = DateSerializer::class)
+    val lastUpdate: Date? = null,
+
     val error: kotlin.String? = null
 ) {
 

@@ -13,10 +13,12 @@ package com.nsimtech.rastersclient.data
 
 
 import com.nsimtech.rastersclient.data.Serializer.DatasetStatusSerializer
+import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
 import com.squareup.moshi.Json
 import kotlinx.serialization.ContextualSerialization
 import kotlinx.serialization.Serializable
+import java.util.*
 
 /**
  * 
@@ -37,8 +39,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DataSet (
     val type: kotlin.String? = null,
-    val beginDate: String? = null,
-    val endDate: String? = null,
+
+    @Serializable(with = DateSerializer::class)
+    val beginDate: Date? = null,
+
+    @Serializable(with = DateSerializer::class)
+    val endDate: Date? = null,
+
     val nbFiles: kotlin.Int? = null,
     val size: kotlin.Double? = null,
     val dataUploaded: kotlin.String? = null,

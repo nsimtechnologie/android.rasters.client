@@ -52,21 +52,13 @@ open class RetrofitClientBase : IHttpClient
             .addInterceptor(headersInterceptor)
             .addInterceptor(validationInterceptor);
 
-//        if(BuildConfig.DEBUG) {
-//            val logging = HttpLoggingInterceptor()
-//            logging.level = HttpLoggingInterceptor.Level.BASIC;
-//            clientBuilder.addInterceptor(logging);
-//        }
-
         val contentType = MediaType.get("application/json")
         var client : OkHttpClient = clientBuilder.build();
         var JsonConverterFactory = Json.nonstrict.asConverterFactory(contentType);
-//        JsonConverterFactory. JSON.nonstrict;
 
         _retrofitClient = Retrofit.Builder()
             .client(client)
             .baseUrl(baseUri)
-            //.addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(JsonConverterFactory)
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build();
