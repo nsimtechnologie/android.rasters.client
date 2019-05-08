@@ -15,6 +15,7 @@ import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 import com.nsimtech.rastersclient.data.Serializer.JsonSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import java.util.*
 
 /**
@@ -36,14 +37,14 @@ data class IotData (
     var is_locked: kotlin.Boolean? = null,
     var type: kotlin.String? = null,
     var device_name: kotlin.String? = null,
-    var geometry: Geometry? = null,
+    var geometry: JsonObject? = null,
 
     @Serializable(with = DateSerializer::class)
     var date: Date? = null,
 
-    var data: JsonElement? = null,
-    var bindings: JsonElement? = null,
-    var metadata: JsonElement? = null
+    var data: JsonObject? = null,
+    var bindings: JsonObject? = null,
+    var metadata: JsonObject? = null
 ) {
 
 }

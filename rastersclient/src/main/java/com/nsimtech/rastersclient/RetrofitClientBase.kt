@@ -52,6 +52,12 @@ open class RetrofitClientBase : IHttpClient
             .addInterceptor(headersInterceptor)
             .addInterceptor(validationInterceptor);
 
+//        if(BuildConfig.DEBUG) {
+//            val logging = HttpLoggingInterceptor()
+//            logging.level = HttpLoggingInterceptor.Level.BASIC;
+//            clientBuilder.addInterceptor(logging);
+//        }
+
         val contentType = MediaType.get("application/json")
         var client : OkHttpClient = clientBuilder.build();
         var JsonConverterFactory = Json.nonstrict.asConverterFactory(contentType);

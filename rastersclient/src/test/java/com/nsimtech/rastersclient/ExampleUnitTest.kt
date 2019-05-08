@@ -40,6 +40,9 @@ class ExampleUnitTest {
     var _organization : UUID = UUID.fromString("085c62bc-0769-4554-81ef-a1ba7ddcd552");
     var _iotLayerId : UUID = UUID.fromString("ef22eb20-b712-4167-b601-ebc425f968d1");
     var _annotationLayerId : UUID = UUID.fromString("cab75d73-5b0c-4fe8-aa43-4adc26553b1a");
+    var _roadId : String = "1a13aa8859336cf2d74c5c038d46c3c1";
+    var _roadsLayerId : UUID = UUID.fromString("bc4d97d0-0f3a-4e58-91d4-f806fbdc8d01");
+    var _roadLayerAttribute : String = "NOM";
 
     @Test
     fun rastersClient_AuthenticateByCredentials_ShouldReturnAccessTokenAndRefreshToken()
@@ -242,12 +245,13 @@ class ExampleUnitTest {
         assertTrue(queryResult != null);
     }
 
+    @ImplicitReflectionSerializer
     @Test
     fun rastersClient_IotIngestionOperations_UpsertSingleIotData()
     {
         var client = buildAuthRasterClient();
 
-        var iotData = CreatePoint("my point1",listOf(-71.254028, 46.829853));
+        var iotData = CreatePoint("my point1",-71.254028, 46.829853);
         runBlocking {
             var success = client.iotIngestion.upsertIotData(iotData).await();
         }
@@ -260,13 +264,14 @@ class ExampleUnitTest {
         assertTrue(iotReceived != null);
     }
 
+    @ImplicitReflectionSerializer
     @Test
     fun rastersClient_IotIngestionOperations_UpsertMultipleIotData()
     {
         var client = buildAuthRasterClient();
 
-        var iotData1 :IotData = CreatePoint("my point1",listOf(-71.254028, 46.829823));
-        var iotData2 :IotData= CreatePoint("my point2",listOf(-71.254028, 46.829853));
+        var iotData1 :IotData = CreatePoint("my point1",-71.254028, 46.829823);
+        var iotData2 :IotData= CreatePoint("my point2",-71.254028, 46.829853);
         var iotList : List<IotData> = listOf(iotData1,iotData2);
 
         runBlocking {
@@ -291,7 +296,7 @@ class ExampleUnitTest {
 
         var client = buildAuthRasterClient();
 
-        var iotData1 :IotData = CreatePoint("my point2", listOf(-71.254028, 46.829853));
+        var iotData1 :IotData = CreatePoint("my point2", -71.254028, 46.829853);
 
         var iotReceived : IotReceived = IotReceived();
         iotReceived.data = iotData1;
@@ -302,8 +307,6 @@ class ExampleUnitTest {
             client.iotIngestion.upsertIotReceived(iotReceived).await();
         }
     }
-
-
 
     @Test
     fun rastersClient_IotIngestionOperations_AddGetAttachment()
@@ -326,6 +329,25 @@ class ExampleUnitTest {
         assertTrue(getLink != null);
     }
 
+    @Test
+    fun rastersClient_Navigation_Generate()
+    {
+        var client = buildAuthRasterClient();
+
+        var link : FileLink? = null;
+        var getLink : FileLink? = null;
+        var dataKey = IotDataKey(_roadId,_annotationLayerId);
+
+        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId,_roadLayerAttribute);
+        var navigation : Navigation? = null;
+
+        runBlocking {
+            navigation = client.navigation.generate(request).await();
+        }
+
+        assertTrue(navigation != null);
+    }
+
     private fun buildRasterClient(): RastersClient {
         return RastersClient(_url)
     }
@@ -340,15 +362,15 @@ class ExampleUnitTest {
         return rastersClient;
     }
 
-    private fun CreatePoint(id:String,coordinates:List<Double>) : IotData
+    @ImplicitReflectionSerializer
+    private fun CreatePoint(id:String, Lon:Double, Lat:Double ) : IotData
     {
         var iotData = IotData();
         iotData.id = IotDataKey(id,_annotationLayerId);
         iotData.is_feature = true;
         iotData.type = "unit-test";
         iotData.device_name = id;
-
-        iotData.geometry = Geometry(coordinates);
+        iotData.geometry = Json.parse("{\"coordinates\" : [$Lon,$Lat], \"type\": \"Point\"}");
         iotData.date = GregorianCalendar(2019,4,3).time;
         iotData.`data` = json{"prop" to JsonLiteral("1234")}; //JSONObject("{'prop':1234}");
         iotData.bindings = null

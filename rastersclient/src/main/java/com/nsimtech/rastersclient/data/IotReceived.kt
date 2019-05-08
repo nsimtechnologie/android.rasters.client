@@ -32,8 +32,8 @@ data class IotReceived (
     var key: IotByLayerKey? = null,
     var text: kotlin.String? = null,
     var orientation: kotlin.Int? = null,
-    var style: JsonElement? = null,
-    var projectedFields: JsonElement? = null
+    var style: JsonObject? = null,
+    var projectedFields: JsonObject? = null
 ) {
 
 }

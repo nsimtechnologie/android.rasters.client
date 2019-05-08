@@ -8,7 +8,7 @@ publish {
 
     def groupProjectID = 'com.nsimtech.rastersclient'
     def artifactProjectID = 'rastersclient'
-    def publishVersionID = '0.1.3'
+    def publishVersionID = '0.1.5'
 
     userOrg = 'rastersio'
     repoName = 'rasters.client'
@@ -91,7 +91,7 @@ dependencies {
     testImplementation("com.squareup.moshi:moshi-kotlin:1.8.0")
     testImplementation 'io.data2viz.geojson:geojson-jvm:0.6.0'
     testImplementation 'org.json:json:20180813'
-    testImplementation 'junit:junit:4.13-beta-2'
+    testImplementation 'junit:junit:4.13-beta-3'
 }
 repositories {
     mavenCentral()
