@@ -367,9 +367,9 @@ class ExampleUnitTest {
     {
         var iotData = IotData();
         iotData.id = IotDataKey(id,_annotationLayerId);
-        iotData.is_feature = true;
+        iotData.isFeature = true;
         iotData.type = "unit-test";
-        iotData.device_name = id;
+        iotData.deviceName = id;
         iotData.geometry = Json.parse("{\"coordinates\" : [$Lon,$Lat], \"type\": \"Point\"}");
         iotData.date = GregorianCalendar(2019,4,3).time;
         iotData.`data` = json{"prop" to JsonLiteral("1234")}; //JSONObject("{'prop':1234}");

@@ -34,11 +34,11 @@ class IotIngestionOperations : IIotIngestionOperations
    }
 
    override suspend fun addAttachment(deviceKey: IotDataKey, filename: String): Deferred<FileLink> {
-      return _iotIngestionOperationsService.addAttachment(deviceKey.connector_id!!,deviceKey.device_id!!,filename);
+      return _iotIngestionOperationsService.addAttachment(deviceKey.connectorId!!,deviceKey.deviceId!!,filename);
    }
 
    override suspend fun getAttachment(deviceKey: IotDataKey, filename: String): Deferred<FileLink> {
-      return _iotIngestionOperationsService.getAttachment(deviceKey.connector_id!!,deviceKey.device_id!!,filename);
+      return _iotIngestionOperationsService.getAttachment(deviceKey.connectorId!!,deviceKey.deviceId!!,filename);
    }
 
 }

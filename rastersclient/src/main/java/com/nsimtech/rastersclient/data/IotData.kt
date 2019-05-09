@@ -11,8 +11,10 @@
 */
 package com.nsimtech.rastersclient.data
 
+import com.google.gson.annotations.SerializedName
 import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 import com.nsimtech.rastersclient.data.Serializer.JsonSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -32,11 +34,21 @@ import java.util.*
 @Serializable
 data class IotData (
     var id: IotDataKey? = null,
-    var is_feature: kotlin.Boolean? = null,
-    var is_shared: kotlin.Boolean? = null,
-    var is_locked: kotlin.Boolean? = null,
+
+    @SerialName("is_feature")
+    var isFeature: kotlin.Boolean? = null,
+
+    @SerialName("is_shared")
+    var isShared: kotlin.Boolean? = null,
+
+    @SerialName("is_locked")
+    var isLocked: kotlin.Boolean? = null,
+
     var type: kotlin.String? = null,
-    var device_name: kotlin.String? = null,
+
+    @SerialName("device_name")
+    var deviceName: kotlin.String? = null,
+
     var geometry: JsonObject? = null,
 
     @Serializable(with = DateSerializer::class)
