@@ -6,6 +6,5 @@ import kotlinx.serialization.json.JsonObject
 import java.util.*
 
 @Serializable
-data class Navigation(var route: JsonObject? = null) {
-
+data class Navigation(var route: JsonObject? = null, var specificity: Specificity? = null ) {
 }

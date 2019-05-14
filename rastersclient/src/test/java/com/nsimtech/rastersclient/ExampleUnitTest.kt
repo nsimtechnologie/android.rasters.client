@@ -32,6 +32,7 @@ import java.util.*
 class ExampleUnitTest {
 
     var _url : String = "https://backend.nsimtech.com:8443";
+    //var _url : String = "http://192.168.111.57:8080";
     var _username : String = "support@nsimtech.com";
     var _mobileusername : String = "supportmobile@nsimtech.com";
     var _validPin : String = "123456";
