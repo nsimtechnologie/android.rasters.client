@@ -17,6 +17,9 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
+import android.R.string
+
+
 //import okhttp3.logging.HttpLoggingInterceptor
 
 
@@ -28,6 +31,8 @@ open class RetrofitClientBase : IHttpClient
     private lateinit var _retrofitClient : Retrofit;
     private lateinit var _authOperations : IAuthOperations;
     private var _requestHeaders : RequestHeaders = RequestHeaders();
+
+    private var _refreshToken: String? = null
 
     var retrofitClient: Retrofit? = null
         get() = _retrofitClient;
@@ -93,6 +98,7 @@ open class RetrofitClientBase : IHttpClient
         runBlocking {
             response = _authOperations.authenticateFromCredentials("password", username, password, "rasters", scope).await();
         }
+        _refreshToken = response.refresh_token;
 
         _requestHeaders.authorization = "Bearer " + response.access_token;
         return response;
@@ -105,6 +111,8 @@ open class RetrofitClientBase : IHttpClient
         runBlocking {
             response = authenticateFromCredentials(username, password, "offline_access");
         }
+
+        _refreshToken = response.refresh_token;
 
         _requestHeaders.authorization = "Bearer " + response.access_token;
         return response;
@@ -121,7 +129,11 @@ open class RetrofitClientBase : IHttpClient
             response = _authOperations.authenticateFromRefreshToken("refresh_token",refreshToken,"rasters").await();
         }
 
+        response.refresh_token = refreshToken;
+        _refreshToken = refreshToken;
+
         _requestHeaders.authorization = "Bearer " + response.access_token;
+
         return response
     }
 

@@ -8,7 +8,7 @@ publish {
 
     def groupProjectID = 'com.nsimtech.rastersclient'
     def artifactProjectID = 'rastersclient'
-    def publishVersionID = '0.1.7'
+    def publishVersionID = '0.1.9'
 
     userOrg = 'rastersio'
     repoName = 'rasters.client'
@@ -32,8 +32,8 @@ android {
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 7
-        versionName '0.1.7'
+        versionCode 9
+        versionName '0.1.9'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

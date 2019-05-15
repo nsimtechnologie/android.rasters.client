@@ -75,6 +75,7 @@ class ExampleUnitTest {
         }
 
         assertTrue(auth2.access_token != "" )
+        assertTrue(auth2.refresh_token != "")
     }
 
     @Test
