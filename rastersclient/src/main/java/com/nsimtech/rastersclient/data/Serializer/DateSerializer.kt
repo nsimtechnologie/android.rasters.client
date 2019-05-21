@@ -21,6 +21,7 @@ object DateSerializer : KSerializer<Date?> {
         get() = StringDescriptor.withName("Date")
 
     override fun serialize(output: Encoder, obj: Date?) {
+        formatArray[0].timeZone = TimeZone.getTimeZone("UTC")
         output.encodeString(formatArray[0].format(obj))
     }
 
@@ -32,6 +33,7 @@ object DateSerializer : KSerializer<Date?> {
 
         for(dateformat in formatArray)
         {
+            dateformat.timeZone = TimeZone.getTimeZone("UTC")
             try {
                 deserializedDate= dateformat.parse(stringToDecode);
             }

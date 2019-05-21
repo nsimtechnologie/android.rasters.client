@@ -4,7 +4,9 @@ import com.google.gson.Gson
 import com.nsimtech.rastersclient.data.*
 import com.nsimtech.rastersclient.data.Geometry
 import com.nsimtech.rastersclient.data.Map
+import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
+import com.nsimtech.rastersclient.exception.SimpleHttpResponseException
 import io.data2viz.geojson.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
@@ -20,6 +22,7 @@ import org.json.JSONString
 
 import org.junit.Assert.*
 import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -349,6 +352,57 @@ class ExampleUnitTest {
 
         assertTrue(navigation != null);
     }
+
+    @ImplicitReflectionSerializer
+    @Test
+    fun rastersClient_Date_serialisation()
+    {
+        val date = Date()
+        val iotData1 :IotData = CreatePoint("my point2", -71.254028, 46.829853);
+        iotData1.date = date
+
+        val simple = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        simple.timeZone = TimeZone.getTimeZone("UTC")
+        val result = simple.format(date)
+
+        val serialized =  Json.stringify(IotData.serializer(), iotData1)
+
+        assertTrue(serialized.contains(result))
+    }
+
+    @Test
+    fun rastersClient_getAssetFromDeviceKey()
+    {
+        val client = buildAuthRasterClient();
+        var asset:Asset? = null
+        runBlocking {
+            asset = client.assets.getAssetFromDeviceKey(IotDataKey("1506",UUID.fromString("1438a1b0-4b80-42cc-9d8a-ba9398c56627"))).await()
+        }
+        assertTrue(asset != null)
+    }
+
+    @Test
+    fun rastersClient_getRemoveAddAssetFromDeviceKey()
+    {
+        val client = buildAuthRasterClient();
+        var asset:Asset? = null
+        runBlocking {
+            val assetId = UUID.fromString("c41f775d-3275-4024-8924-bbaea975fb3e")
+            val iotDataKey =IotDataKey("1506",UUID.fromString("1438a1b0-4b80-42cc-9d8a-ba9398c56627"))
+
+            try {
+                client.assets.addAssetDevice(assetId, iotDataKey).await()
+            }
+            catch(e: SimpleHttpResponseException)
+            {
+                client.assets.removeDeviceFromAsset(assetId, iotDataKey).await()
+            }
+
+            client.assets.addAssetDevice(assetId, iotDataKey).await()
+        }
+    }
+
+
 
     private fun buildRasterClient(): RastersClient {
         return RastersClient(_url)
