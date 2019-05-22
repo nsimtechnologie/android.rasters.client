@@ -1,14 +1,22 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlinx-serialization'
+
+ext.versionMajor = 0
+ext.versionMinor = 2
+ext.versionPatch = 0
+ext.versionClassifier = null
+ext.isSnapshot = false
+ext.minimumSdkVersion = 23
+ext.targetSdkVersion = 23
 
 publish {
 
     def groupProjectID = 'com.nsimtech.rastersclient'
     def artifactProjectID = 'rastersclient'
-    def publishVersionID = '0.1.9'
+    def publishVersionID = generateVersionName()
 
     userOrg = 'rastersio'
     repoName = 'rasters.client'
@@ -30,10 +38,10 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 28
-        versionCode 9
-        versionName '0.1.9'
+        minSdkVersion project.ext.minimumSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
+        versionCode generateVersionCode() // 190010203
+        versionName generateVersionName() // 1.2.3-SNAPSHOT
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -51,8 +59,8 @@ android {
 dependencies {
 //    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha04'
-    implementation 'androidx.core:core-ktx:1.1.0-alpha05'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
+    implementation 'androidx.core:core-ktx:1.2.0-alpha01'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1'
@@ -67,10 +75,10 @@ dependencies {
 
 //    debugImplementation 'com.squareup.okhttp3:logging-interceptor:3.14.1'
 
-    androidTestImplementation 'androidx.test:runner:1.2.0-alpha05'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-alpha05'
-    androidTestImplementation 'androidx.appcompat:appcompat:1.1.0-alpha04'
-    androidTestImplementation 'androidx.core:core-ktx:1.1.0-alpha05'
+    androidTestImplementation 'androidx.test:runner:1.2.0-beta01'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-beta01'
+    androidTestImplementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
+    androidTestImplementation 'androidx.core:core-ktx:1.2.0-alpha01'
     androidTestImplementation 'com.squareup.retrofit2:retrofit:2.5.0'
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1'
@@ -80,8 +88,8 @@ dependencies {
     androidTestImplementation("com.squareup.moshi:moshi-kotlin:1.8.0")
     androidTestImplementation 'org.json:json:20180813'
 
-    testImplementation 'androidx.appcompat:appcompat:1.1.0-alpha04'
-    testImplementation 'androidx.core:core-ktx:1.1.0-alpha05'
+    testImplementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
+    testImplementation 'androidx.core:core-ktx:1.2.0-alpha01'
     testImplementation 'com.squareup.retrofit2:retrofit:2.5.0'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1'
@@ -95,4 +103,20 @@ dependencies {
 }
 repositories {
     mavenCentral()
+}
+
+private Integer generateVersionCode() {
+    return ext.minimumSdkVersion * 10000000 + ext.versionMajor * 10000 + ext.versionMinor * 100 + ext.versionPatch
+}
+
+private String generateVersionName() {
+    String versionName = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionPatch}"
+    if (ext.versionClassifier == null && ext.isSnapshot) {
+        ext.versionClassifier = "SNAPSHOT"
+    }
+
+    if (ext.versionClassifier != null) {
+        versionName += "-" + ext.versionClassifier
+    }
+    return versionName;
 }
