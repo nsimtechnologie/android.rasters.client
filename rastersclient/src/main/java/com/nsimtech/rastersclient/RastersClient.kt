@@ -16,6 +16,7 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
     private var _iotQuery : IIotQueryOperations;
     private var _iotIngestion : IIotIngestionOperations;
     private var _navigation : INavigationOperations;
+    private var _scopedSetting : IScopedSettingOperations;
 
     constructor(baseUri: String, organizationId: UUID, authToken: String) : this(baseUri){}
 
@@ -29,6 +30,7 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
         val iIotQueryOperations : IIotQueryOperationsService = retrofitClient!!.create(IIotQueryOperationsService::class.java);
         val iIotIngestionOperations : IIotIngestionOperationsService = retrofitClient!!.create(IIotIngestionOperationsService::class.java);
         val iNavigation : INavigationOperationsService = retrofitClient!!.create(INavigationOperationsService::class.java);
+        val iSettingOperations : IScopedSettingOperationsService = retrofitClient!!.create(IScopedSettingOperationsService::class.java);
 
         _account = AccountOperations(iAccountOperations);
         _asset = AssetOperations(iAssetOperations);
@@ -38,6 +40,7 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
         _iotQuery = IotQueryOperations(iIotQueryOperations);
         _iotIngestion = IotIngestionOperations(iIotIngestionOperations);
         _navigation = NavigationOperations(iNavigation);
+        _scopedSetting = ScopedSettingOperations(iSettingOperations);
     }
 
     override var account: IAccountOperations
@@ -72,6 +75,11 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
     override var navigation: INavigationOperations
         get() = _navigation
         set(value) {}
+
+    override var scopedSetting: IScopedSettingOperations
+        get() = _scopedSetting
+        set(value) {}
+
 
     override fun asOrganization(orgId: UUID): IRastersClient {
         return RastersClient(baseUri,orgId,requestHeaders!!.authorization);

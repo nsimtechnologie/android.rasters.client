@@ -16,6 +16,7 @@ interface IRastersClient : IHttpClient
     var iotIngestion: IIotIngestionOperations;
     var iotQuery: IIotQueryOperations;
     var navigation: INavigationOperations;
+    var scopedSetting: IScopedSettingOperations;
 
 //    var layers: ILayerOperations;
 //    var Events: IEventOperations;

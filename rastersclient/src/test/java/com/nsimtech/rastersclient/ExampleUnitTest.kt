@@ -402,6 +402,49 @@ class ExampleUnitTest {
         }
     }
 
+    @Test
+    fun rastersClient_ScopeSettingsFullCrud(){
+        val rastersClient = buildAuthRasterClient()
+
+        val maps = runBlocking {rastersClient.maps.getMaps().await()}
+
+        var layer: Layer? = null
+        maps.listIterator().forEach { map ->
+            val layers = runBlocking { rastersClient.maps.getMapLayers(map.mapKey!!).await() }
+
+            val l = layers.firstOrNull() { l -> l.type == Layer.Type.Iot }
+            if (layer == null)
+                layer = l
+        }
+        val settingKey1 = ScopeKey(Scope(Scope.ScopeLevel.Layer, layer!!.id!!), "unit-test-1");
+        val settingKey2 = ScopeKey(Scope(Scope.ScopeLevel.Layer, layer!!.id!!), "unit-test-2");
+
+        val map: MutableList<Pair<String, JsonElement>> = mutableListOf()
+        map.add(Pair("key1",JsonLiteral("value1")))
+        map.add(Pair("key2",JsonLiteral("value2")))
+        val jPayload1 = JsonObject(map.toMap())
+
+        map.add(Pair("key2",JsonLiteral("value2")))
+        val jPayload2 = JsonObject(map.toMap())
+
+        val setting1 = runBlocking { rastersClient.scopedSetting.setById(settingKey1, jPayload1).await()}
+        assertTrue(setting1.id!!.key == settingKey1.key)
+
+        val setting2 = runBlocking { rastersClient.scopedSetting.setById(settingKey2, jPayload2).await()}
+        assertTrue(setting2.id!!.key == settingKey2.key)
+
+        val readSetting1 =  runBlocking { rastersClient.scopedSetting.getById(settingKey1).await()}
+        assertTrue(readSetting1.value.toString() == jPayload1.toString())
+
+        var settings =  runBlocking { rastersClient.scopedSetting.getByScope(settingKey1.scope!!).await()}
+        assertTrue(settings.count() == 2)
+
+        runBlocking { rastersClient.scopedSetting.deleteById(settingKey1).await()}
+        runBlocking { rastersClient.scopedSetting.deleteById(settingKey2).await()}
+
+        settings =  runBlocking { rastersClient.scopedSetting.getByScope(settingKey1.scope!!).await()}
+        assertTrue(settings.count() == 0)
+    }
 
 
     private fun buildRasterClient(): RastersClient {
