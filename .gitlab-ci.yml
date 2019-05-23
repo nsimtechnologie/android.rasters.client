@@ -10,22 +10,35 @@ Clean:RestApi:
         - export ANDROID_SDK_ROOT=~/android-sdk
         - export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
         - export PATH=$PATH:$ANDROID_SDK_ROOT/tools
+        - echo $PATH
         - gradle clean
 
 Build:RestApi:
     stage: build
-    script:  
+    script: 
+        - export ANDROID_SDK_ROOT=~/android-sdk
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/tools
+        - echo $PATH
         - gradle build -x test
 
 Test:RestApi:
     stage: test
-    script:  
+    script: 
+        - export ANDROID_SDK_ROOT=~/android-sdk
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/tools
+        - echo $PATH
         - gradle test
 
 publish:RestApi:
     stage: publish
     when: manual
-    script: 
+    script:  
+        - export ANDROID_SDK_ROOT=~/android-sdk
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/tools
+        - echo $PATH
         - gradle clean build bintrayUpload -PbintrayUser=nsimtech -PbintrayKey=0d271819fef633e90e9a82b47583491b2c6c902f -PdryRun=false
     only:
     - master
