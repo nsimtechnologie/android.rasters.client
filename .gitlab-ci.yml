@@ -4,22 +4,29 @@ stages:
     - test
     - publish
 
-Build:RestApi:
+Clean:RestApi:
     stage: clean
-    script: gradle clean
+    script: 
+        - export ANDROID_SDK_ROOT=~/android-sdk
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+        - export PATH=$PATH:$ANDROID_SDK_ROOT/tools
+        - gradle clean
 
 Build:RestApi:
     stage: build
-    script: gradle build -x test
+    script:  
+        - gradle build -x test
 
 Test:RestApi:
     stage: test
-    script: gradle test
+    script:  
+        - gradle test
 
 publish:RestApi:
     stage: publish
     when: manual
-    script: gradle clean build bintrayUpload -PbintrayUser=nsimtech -PbintrayKey=0d271819fef633e90e9a82b47583491b2c6c902f -PdryRun=false
+    script: 
+        - gradle clean build bintrayUpload -PbintrayUser=nsimtech -PbintrayKey=0d271819fef633e90e9a82b47583491b2c6c902f -PdryRun=false
     only:
     - master
 
