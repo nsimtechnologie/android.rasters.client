@@ -16,6 +16,9 @@ interface IIotQueryOperationsService
     @GET("IotStatuses/{connectorId}/{deviceId}")
     fun getById(@Path("connectorId") connectorId: UUID,@Path("deviceId") deviceId: String ): Deferred<IotData>
 
+    @GET("IotStatuses/{connectorId}/{deviceId}/{layerId}")
+    fun getById(@Path("connectorId") connectorId: UUID,@Path("deviceId") deviceId: String,@Path("layerId") layerId: UUID  ): Deferred<IotReceived>
+
     @POST("IotStatuses/query/status")
     fun queryCurrent(@Body query : IotQueryModel): Deferred<QueryResult<IotReceived>>
 }

@@ -21,6 +21,10 @@ class IotQueryOperations : IIotQueryOperations
       return _iIotQueryOperationsService.getById(key.connectorId!!,key.deviceId!!);
    }
 
+   override suspend fun getById(key: IotByLayerKey): Deferred<IotReceived> {
+      return _iIotQueryOperationsService.getById(key.iotDataKey?.connectorId!!,key.iotDataKey.deviceId!!,key.layerId!!);
+   }
+
    override suspend fun queryCurrent(query: IotQueryModel): Deferred<QueryResult<IotReceived>> {
       return _iIotQueryOperationsService.queryCurrent(query);
    }

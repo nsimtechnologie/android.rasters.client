@@ -34,16 +34,22 @@ import java.util.*
  */
 class ExampleUnitTest {
 
+//    var _url : String = "http://192.168.111.81:8080";
+//
+//    var _username : String = "jbedard@nsimtech.com";
+//    var _password : String = "jbedard01";
+//    var _annotationLayerId : UUID = UUID.fromString("fbc0f761-0987-42fb-b2b6-372c211c8fe4");
+
     var _url : String = "https://backend.nsimtech.com:8443";
-    //var _url : String = "http://192.168.111.57:8080";
+    var _password : String = "MErDQ95gKUr";
     var _username : String = "support@nsimtech.com";
+    var _annotationLayerId : UUID = UUID.fromString("cab75d73-5b0c-4fe8-aa43-4adc26553b1a");
+
     var _mobileusername : String = "supportmobile@nsimtech.com";
     var _validPin : String = "123456";
-    var _password : String = "MErDQ95gKUr";
     var _mapkey : UUID = UUID.fromString("ff07a38c-d18e-48f6-85cc-1b9cf146b575");
     var _organization : UUID = UUID.fromString("085c62bc-0769-4554-81ef-a1ba7ddcd552");
     var _iotLayerId : UUID = UUID.fromString("ef22eb20-b712-4167-b601-ebc425f968d1");
-    var _annotationLayerId : UUID = UUID.fromString("cab75d73-5b0c-4fe8-aa43-4adc26553b1a");
     var _roadId : String = "1a13aa8859336cf2d74c5c038d46c3c1";
     var _roadsLayerId : UUID = UUID.fromString("bc4d97d0-0f3a-4e58-91d4-f806fbdc8d01");
     var _roadLayerAttribute : String = "NOM";
@@ -217,7 +223,7 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun rastersClient_IotQueryOperations_GetById()
+    fun rastersClient_IotQueryOperations_IotData_GetById()
     {
         var client = buildAuthRasterClient();
 
@@ -226,6 +232,22 @@ class ExampleUnitTest {
 
         runBlocking {
             iotReceived = client.iotQuery.getById(dataKey).await();
+        }
+
+        assertTrue(iotReceived != null);
+    }
+
+    @Test
+    fun rastersClient_IotQueryOperations_IotReceived_GetById()
+    {
+        val client = buildAuthRasterClient();
+
+        var iotReceived : IotReceived? = null;
+        var dataKey = IotDataKey("8030",UUID.fromString("e84ad208-4116-4288-a751-93a5164c933d"));
+        var dataKeyWithStyle = IotByLayerKey(dataKey,_annotationLayerId);
+
+        runBlocking {
+            iotReceived = client.iotQuery.getById(dataKeyWithStyle).await();
         }
 
         assertTrue(iotReceived != null);
@@ -307,6 +329,18 @@ class ExampleUnitTest {
         iotReceived.data = iotData1;
         iotReceived.key = IotByLayerKey(iotData1.id,_annotationLayerId);
         //iotReceived.style = json{"icon" to JsonLiteral("circle")};
+        var progressList : List<JsonElement> = listOf(
+            JsonLiteral(0),JsonLiteral("#00FF00"),
+            JsonLiteral(0.5-0.1),JsonLiteral("#00FF00"),
+            JsonLiteral(0.5),JsonLiteral("#FF0000"),
+            JsonLiteral(1),JsonLiteral("#FF0000")
+        )
+
+        var currentStyle = (json { "gradient" to JsonArray(progressList)})
+            .plus(json { "shape" to JsonLiteral("line-gradient")})
+
+        iotReceived.style = JsonObject(currentStyle)
+        iotReceived.key = IotByLayerKey(iotData1.id,iotData1.id!!.connectorId!!)
 
         runBlocking {
             client.iotIngestion.upsertIotReceived(iotReceived).await();
