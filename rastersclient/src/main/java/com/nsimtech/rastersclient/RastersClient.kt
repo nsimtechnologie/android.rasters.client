@@ -6,7 +6,7 @@ import com.nsimtech.rastersclient.service.*
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
-class RastersClient: RetrofitClientBase, IRastersClient  {
+open class RastersClient: RetrofitClientBase, IRastersClient  {
 
     private var _account : IAccountOperations;
     private var _asset : IAssetOperations;
@@ -41,6 +41,17 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
         _iotIngestion = IotIngestionOperations(iIotIngestionOperations);
         _navigation = NavigationOperations(iNavigation);
         _scopedSetting = ScopedSettingOperations(iSettingOperations);
+
+        super.getImpersonatedUser = { pin ->
+            var user: ImpersonatedUser? = null
+            runBlocking {
+                user = _user.getImpersonatedUser(pin).await()
+            }
+            if(user == null)
+                Pair("","")
+            else
+                Pair(user!!.user!!.userName,user!!.tempPassword!!)
+        }
     }
 
     override var account: IAccountOperations
@@ -84,6 +95,7 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
     override fun asOrganization(orgId: UUID): IRastersClient {
         return RastersClient(baseUri,orgId,requestHeaders!!.authorization);
     }
+
     override fun asImpersonatedUser(pin: String) : IRastersClient
     {
         var impersonatedUser: ImpersonatedUser? = null;
@@ -91,6 +103,8 @@ class RastersClient: RetrofitClientBase, IRastersClient  {
             impersonatedUser = _user.getImpersonatedUser(pin).await();
         }
         val client: RastersClient = RastersClient(baseUri);
+        client.impersonatePin = pin
+        client.deviceRefreshToken = client.refreshToken
 
         if(impersonatedUser != null) {
             runBlocking {

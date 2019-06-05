@@ -194,6 +194,69 @@ class ExampleUnitTest {
     }
 
     @Test
+    fun rastersClient_renewToken()
+    {
+        val rasterClient = buildRasterClient();
+        var auth : AuthenticationResponse = AuthenticationResponse();
+
+        runBlocking {
+            auth = rasterClient.authenticateFromCredentials(_username,_password);
+        }
+
+        val renewClient = ExposedClient(_url)
+        renewClient.renewToken = auth.refresh_token
+
+        var user : User? = null;
+        runBlocking {
+            user = renewClient.account.getMe().await();
+        }
+        assertTrue(user != null);
+    }
+
+    @Test
+    fun rastersClient_renewToken_asImpersonated()
+    {
+        var rasterClient : IRastersClient = buildRasterClient();
+        var auth : AuthenticationResponse = AuthenticationResponse();
+
+        var user : User? = null;
+        var renewUser : User? = null;
+        runBlocking {
+            auth = rasterClient.authenticateFromCredentials(_mobileusername,_password);
+            rasterClient = rasterClient.asImpersonatedUser(_validPin);
+            user=rasterClient.account.getMe().await();
+        }
+
+        val renewClient = ExposedClient(_url)
+        renewClient.deviceToken = auth.refresh_token
+        renewClient.pin = _validPin
+
+        runBlocking {
+            renewUser  = renewClient.account.getMe().await();
+        }
+
+        assertTrue(user != null);
+        assertTrue(renewUser != null);
+        assertTrue(user!!.userName == renewUser!!.userName)
+    }
+
+    private class ExposedClient(baseUri: String) : RastersClient(baseUri) {
+
+        var renewToken: String?
+            get() = super.refreshToken
+            set(value) { super.refreshToken = value}
+
+        var deviceToken: String?
+            get() = super.deviceRefreshToken
+            set(value) { super.deviceRefreshToken = value}
+
+        var pin: String?
+            get() = super.impersonatePin
+            set(value) { super.impersonatePin = value}
+
+    }
+
+    @Test
     fun rastersClient_IotQueryOperations_GetByMap()
     {
         val client = buildAuthRasterClient();
