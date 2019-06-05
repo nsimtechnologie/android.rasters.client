@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlinx-serialization'
 
 ext.versionMajor = 0
-ext.versionMinor = 2
+ext.versionMinor = 3
 ext.versionPatch = 1
 ext.versionClassifier = null
 ext.isSnapshot = false
@@ -75,8 +75,8 @@ dependencies {
 
 //    debugImplementation 'com.squareup.okhttp3:logging-interceptor:3.14.1'
 
-    androidTestImplementation 'androidx.test:runner:1.2.0-beta01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-beta01'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
     androidTestImplementation 'androidx.core:core-ktx:1.2.0-alpha01'
     androidTestImplementation 'com.squareup.retrofit2:retrofit:2.5.0'

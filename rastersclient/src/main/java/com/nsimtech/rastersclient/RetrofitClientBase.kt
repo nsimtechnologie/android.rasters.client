@@ -2,22 +2,19 @@ package com.nsimtech.rastersclient
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.nsimtech.rastersclient.service.IAuthOperations
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
 import com.nsimtech.rastersclient.data.RequestHeaders
-import com.nsimtech.rastersclient.interceptor.StatusValidationInterceptor
-import com.nsimtech.rastersclient.service.AuthOperations
-import com.nsimtech.rastersclient.service.IAuthOperationsService
 import kotlinx.coroutines.*
-import kotlinx.serialization.json.JSON
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
-import android.R.string
+import com.nsimtech.rastersclient.exception.SimpleHttpResponseException
+import com.nsimtech.rastersclient.service.*
+import okhttp3.Response
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
 
 //import okhttp3.logging.HttpLoggingInterceptor
@@ -32,7 +29,10 @@ open class RetrofitClientBase : IHttpClient
     private lateinit var _authOperations : IAuthOperations;
     private var _requestHeaders : RequestHeaders = RequestHeaders();
 
-    private var _refreshToken: String? = null
+    protected var refreshToken: String? = null
+    protected var deviceRefreshToken: String? = null
+    protected var impersonatePin: String? = null
+    protected var getImpersonatedUser : (String) -> Pair<String, String> = { Pair("","")}
 
     var retrofitClient: Retrofit? = null
         get() = _retrofitClient;
@@ -51,11 +51,12 @@ open class RetrofitClientBase : IHttpClient
 
     constructor(baseUri: String)
     {
-        var validationInterceptor = StatusValidationInterceptor();
+        //var validationInterceptor = StatusValidationInterceptor();
 
         var clientBuilder = OkHttpClient().newBuilder()
             .addInterceptor(headersInterceptor)
-            .addInterceptor(validationInterceptor);
+            .addInterceptor(renewalInterceptor)
+            //.addInterceptor(validationInterceptor)
 
 //        if(BuildConfig.DEBUG) {
 //            val logging = HttpLoggingInterceptor()
@@ -79,18 +80,6 @@ open class RetrofitClientBase : IHttpClient
         _baseUri = baseUri;
     }
 
-    private val headersInterceptor = Interceptor { chain ->
-        val request = chain.request().newBuilder();
-
-        if(_requestHeaders.organization != "")
-            request.addHeader("X-organization", _requestHeaders.organization);
-
-        if(_requestHeaders.authorization != "")
-            request.addHeader("Authorization", _requestHeaders.authorization);
-
-        chain.proceed(request.build());
-    }
-
     override suspend fun authenticateFromCredentials(username: String, password: String,scope:String): AuthenticationResponse
     {
         var response : AuthenticationResponse = AuthenticationResponse();
@@ -98,7 +87,7 @@ open class RetrofitClientBase : IHttpClient
         runBlocking {
             response = _authOperations.authenticateFromCredentials("password", username, password, "rasters", scope).await();
         }
-        _refreshToken = response.refresh_token;
+        refreshToken = response.refresh_token;
 
         _requestHeaders.authorization = "Bearer " + response.access_token;
         return response;
@@ -112,7 +101,7 @@ open class RetrofitClientBase : IHttpClient
             response = authenticateFromCredentials(username, password, "offline_access");
         }
 
-        _refreshToken = response.refresh_token;
+        refreshToken = response.refresh_token;
 
         _requestHeaders.authorization = "Bearer " + response.access_token;
         return response;
@@ -130,12 +119,112 @@ open class RetrofitClientBase : IHttpClient
         }
 
         response.refresh_token = refreshToken;
-        _refreshToken = refreshToken;
+        this.refreshToken = refreshToken;
 
         _requestHeaders.authorization = "Bearer " + response.access_token;
 
         return response
     }
+
+    //region Interceptors
+    private val headersInterceptor = Interceptor { chain ->
+        val request = chain.request().newBuilder();
+
+        if(_requestHeaders.organization != "")
+            request.addHeader("X-organization", _requestHeaders.organization);
+
+        if(_requestHeaders.authorization != "")
+            request.addHeader("Authorization", _requestHeaders.authorization);
+
+        chain.proceed(request.build());
+    }
+
+    private val renewalInterceptor = Interceptor { chain ->
+        val originalRequest = chain.request()
+        var response = chain.proceed(originalRequest)
+
+        val test = _requestHeaders.authorization
+
+        if (response.code() == HTTP_UNAUTHORIZED) {
+            if (!refreshToken.isNullOrEmpty()) {
+                runBlocking {
+                    try {
+                        authenticateFromRefreshToken(refreshToken!!)
+                    } catch (e: SimpleHttpResponseException) {
+                        //unable to authenticate with renew token : throw unauthorized
+                        ensureSuccessStatusCodeAsync(response)
+                    }
+                }
+
+                //rebuild the request including the brand new access token!
+                val requestBuilder = originalRequest.newBuilder()
+                requestBuilder.header("Authorization", _requestHeaders.authorization)
+                val newRequest = requestBuilder.build()
+
+                //close original request
+                if (response.body() != null)
+                    response.close()
+
+                //proceed with new request
+                response = chain.proceed(newRequest)
+            }
+        }
+
+        if (response.code() == HTTP_UNAUTHORIZED){
+            if (!deviceRefreshToken.isNullOrEmpty()) {
+                runBlocking {
+                    try {
+                        authenticateFromRefreshToken(deviceRefreshToken!!)
+                    }
+                    catch (e:SimpleHttpResponseException)
+                    {
+                        //unable to authenticate with renew token : throw unauthorized
+                        ensureSuccessStatusCodeAsync(response)
+                    }
+                }
+
+                val pin = impersonatePin
+                if (!impersonatePin.isNullOrEmpty()) {
+                    val pair = getImpersonatedUser.invoke(pin!!)
+                    runBlocking {
+                        authenticateFromCredentials(
+                            pair.first,
+                            pair.second,
+                            "impersonification"
+                        )
+                    }
+                }
+
+                //rebuild the request including the brand new access token!
+                val requestBuilder = originalRequest.newBuilder()
+                requestBuilder.header("Authorization", _requestHeaders.authorization)
+                val newRequest = requestBuilder.build()
+
+                //close original request
+                if (response.body() != null)
+                    response.close()
+
+                //proceed with new request
+                response = chain.proceed(newRequest)
+            }
+        }
+
+        ensureSuccessStatusCodeAsync(response)
+
+        response
+    }
+
+    private fun ensureSuccessStatusCodeAsync(response: Response)
+    {
+        if (response.isSuccessful)
+            return
+
+        if (response.body() != null)
+            response.close()
+
+        throw SimpleHttpResponseException(response.code(), response.message(), response.body()!!.contentType())
+    }
+    //endregion Interceptors
 
     fun dispose()
     {
