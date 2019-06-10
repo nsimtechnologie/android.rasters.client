@@ -1,30 +1,18 @@
 package com.nsimtech.rastersclient
 
-import com.google.gson.Gson
 import com.nsimtech.rastersclient.data.*
-import com.nsimtech.rastersclient.data.Geometry
 import com.nsimtech.rastersclient.data.Map
-import com.nsimtech.rastersclient.data.Serializer.DateSerializer
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
 import com.nsimtech.rastersclient.exception.SimpleHttpResponseException
-import io.data2viz.geojson.*
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.parse
-import okhttp3.Request
-import okhttp3.RequestBody
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.json.JSONObject
-import org.json.JSONString
-
-import org.junit.Assert.*
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 
 /**

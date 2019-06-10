@@ -6,14 +6,13 @@ import com.nsimtech.rastersclient.dto.AuthenticationResponse
 import com.nsimtech.rastersclient.data.RequestHeaders
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
-import okhttp3.Interceptor
-import okhttp3.MediaType
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.*
 import com.nsimtech.rastersclient.exception.SimpleHttpResponseException
 import com.nsimtech.rastersclient.service.*
-import okhttp3.Response
+import okhttp3.*
+import okio.Buffer
+import java.io.IOException
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
 
@@ -43,9 +42,9 @@ open class RetrofitClientBase : IHttpClient
     var requestHeaders: RequestHeaders? = null
         get() = _requestHeaders;
 
-    constructor(baseUri: String, organizationId: UUID, auth: String) : this(baseUri)
+    constructor(baseUri: String, organizationId: String, auth: String) : this(baseUri)
     {
-        _requestHeaders.organization = organizationId.toString();
+        _requestHeaders.organization = organizationId;
         _requestHeaders.authorization = auth;
     }
 

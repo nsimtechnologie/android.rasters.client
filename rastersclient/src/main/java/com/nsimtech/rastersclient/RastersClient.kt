@@ -18,10 +18,7 @@ open class RastersClient: RetrofitClientBase, IRastersClient  {
     private var _navigation : INavigationOperations;
     private var _scopedSetting : IScopedSettingOperations;
 
-    constructor(baseUri: String, organizationId: UUID, authToken: String) : this(baseUri){}
-
-    constructor(baseUri: String) : super (baseUri)
-    {
+    constructor(baseUri: String, organizationId: String, authToken: String) : super(baseUri,organizationId,authToken){
         val iAccountOperations : IAccountOperationsService = retrofitClient!!.create(IAccountOperationsService::class.java);
         val iAssetOperations : IAssetOperationsService = retrofitClient!!.create(IAssetOperationsService::class.java);
         val iMapOperations : IMapOperationsService = retrofitClient!!.create(IMapOperationsService::class.java);
@@ -53,6 +50,8 @@ open class RastersClient: RetrofitClientBase, IRastersClient  {
                 Pair(user!!.user!!.userName,user!!.tempPassword!!)
         }
     }
+
+    constructor(baseUri: String) : this(baseUri,"","") {}
 
     override var account: IAccountOperations
         get() = _account
@@ -93,7 +92,7 @@ open class RastersClient: RetrofitClientBase, IRastersClient  {
 
 
     override fun asOrganization(orgId: UUID): IRastersClient {
-        return RastersClient(baseUri,orgId,requestHeaders!!.authorization);
+        return RastersClient(baseUri,orgId.toString(),requestHeaders!!.authorization);
     }
 
     override fun asImpersonatedUser(pin: String) : IRastersClient
