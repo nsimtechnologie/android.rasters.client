@@ -11,7 +11,9 @@
 */
 package com.nsimtech.rastersclient.data
 
+import com.nsimtech.rastersclient.data.Serializer.UUIDSerializer
 import kotlinx.serialization.Serializable
+import java.util.*
 
 
 /**
@@ -21,6 +23,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Particularity (
+    @Serializable(with = UUIDSerializer::class)
+    var id: UUID = UUID.randomUUID(),
     var location: List<Double>? = null,
     var text: String? = null,
     var distanceFromStart : Double? = null
