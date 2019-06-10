@@ -23,6 +23,8 @@ class StatusValidationInterceptor : Interceptor
         if (response.body() != null)
             response.close();
 
-        throw SimpleHttpResponseException(response.code(), response.message(), response.body()!!.contentType());
+        var exception = SimpleHttpResponseException(response.code(), response.message(), response.body()!!.contentType())
+        exception.requestBody = response.request().body().toString();
+        throw exception;
     }
 }

@@ -9,6 +9,7 @@ class SimpleHttpResponseException(content: String?) : IOException(content)
 {
     var statusCode : Int? = null;
     var error : JSONObject? = null;
+    var requestBody: String? = null;
 
     constructor(statusCode:Int, content:String,contentType : MediaType?) : this(content) {
         this.statusCode = statusCode;

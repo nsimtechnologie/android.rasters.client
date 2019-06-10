@@ -221,9 +221,26 @@ open class RetrofitClientBase : IHttpClient
         if (response.body() != null)
             response.close()
 
-        throw SimpleHttpResponseException(response.code(), response.message(), response.body()!!.contentType())
+        var exception = SimpleHttpResponseException(response.code(), response.message(), response.body()!!.contentType())
+        exception.requestBody = bodyToString(response.request())
+        throw exception;
+    }
+
+    private fun bodyToString(request: Request): String {
+
+        try {
+            val copy = request.newBuilder().build()
+            val buffer = Buffer()
+            copy.body()?.writeTo(buffer)
+            return buffer.readUtf8()
+        } catch (e: IOException) {
+            return "did not work"
+        }
+
     }
     //endregion Interceptors
+
+
 
     fun dispose()
     {
