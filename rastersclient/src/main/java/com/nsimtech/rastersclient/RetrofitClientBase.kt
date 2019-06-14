@@ -10,6 +10,7 @@ import retrofit2.Retrofit
 import java.util.*
 import com.nsimtech.rastersclient.exception.SimpleHttpResponseException
 import com.nsimtech.rastersclient.service.*
+import kotlinx.serialization.json.JsonConfiguration
 import okhttp3.*
 import okio.Buffer
 import java.io.IOException
@@ -65,7 +66,7 @@ open class RetrofitClientBase : IHttpClient
 
         val contentType = MediaType.get("application/json")
         var client : OkHttpClient = clientBuilder.build();
-        var JsonConverterFactory = Json.nonstrict.asConverterFactory(contentType);
+        var JsonConverterFactory = Json(JsonConfiguration(strictMode = false, useArrayPolymorphism = true, encodeDefaults = false)).asConverterFactory(contentType);
 
         _retrofitClient = Retrofit.Builder()
             .client(client)

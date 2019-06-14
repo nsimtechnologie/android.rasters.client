@@ -38,7 +38,13 @@ class ExampleUnitTest {
     var _mapkey : UUID = UUID.fromString("ff07a38c-d18e-48f6-85cc-1b9cf146b575");
     var _organization : UUID = UUID.fromString("085c62bc-0769-4554-81ef-a1ba7ddcd552");
     var _iotLayerId : UUID = UUID.fromString("ef22eb20-b712-4167-b601-ebc425f968d1");
+    var _connectorId : String = "13bb4a69-9759-473e-a7e0-d86f26851ff9";
+
+    //Not Working Road until fix
+//    var _roadId : String = "6abb4f841e77f322817d7ebf1655fd1e";
     var _roadId : String = "1a13aa8859336cf2d74c5c038d46c3c1";
+
+
     var _roadsLayerId : UUID = UUID.fromString("bc4d97d0-0f3a-4e58-91d4-f806fbdc8d01");
     var _roadLayerAttribute : String = "NOM";
 
