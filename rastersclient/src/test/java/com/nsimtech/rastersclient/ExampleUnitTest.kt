@@ -450,25 +450,25 @@ class ExampleUnitTest {
         assertTrue(getLink != null);
     }
 
-//    @Test
-//    fun rastersClient_Navigation_Generate()
-//    {
-//        var client = buildAuthRasterClient();
-//
-//        var link : FileLink? = null;
-//        var getLink : FileLink? = null;
-//        var dataKey = IotDataKey(_roadId,_annotationLayerId);
-//
-//        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId,_roadLayerAttribute);
-//        var navigation : Navigation? = null;
-//
-//        runBlocking {
-//            Thread.sleep(2000)
-//            navigation = client.navigation.generate(request).await();
-//        }
-//
-//        assertTrue(navigation != null);
-//    }
+    @Test
+    fun rastersClient_Navigation_Generate()
+    {
+        var client = buildAuthRasterClient();
+
+        var link : FileLink? = null;
+        var getLink : FileLink? = null;
+        var dataKey = IotDataKey(_roadId,_annotationLayerId);
+
+        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId,_roadLayerAttribute);
+        var navigation : Navigation? = null;
+
+        runBlocking {
+            Thread.sleep(2000)
+            navigation = client.navigation.generate(request).await();
+        }
+
+        assertTrue(navigation != null);
+    }
 
 
     @ImplicitReflectionSerializer
