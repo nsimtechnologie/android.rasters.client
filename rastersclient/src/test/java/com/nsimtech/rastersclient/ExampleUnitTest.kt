@@ -89,6 +89,7 @@ class ExampleUnitTest {
         var user : User? = null;
 
         runBlocking {
+            Thread.sleep(2000)
             user = client.account.getMe().await();
         }
 
@@ -185,8 +186,8 @@ class ExampleUnitTest {
         val imperclient = client.asImpersonatedUser(_validPin);
 
         var user : User? = null;
-
         runBlocking {
+            Thread.sleep(2000)
             user = imperclient.account.getMe().await();
         }
 
@@ -208,6 +209,7 @@ class ExampleUnitTest {
 
         var user : User? = null;
         runBlocking {
+            Thread.sleep(2000)
             user = renewClient.account.getMe().await();
         }
         assertTrue(user != null);
@@ -224,6 +226,7 @@ class ExampleUnitTest {
         runBlocking {
             auth = rasterClient.authenticateFromCredentials(_mobileusername,_password);
             rasterClient = rasterClient.asImpersonatedUser(_validPin);
+            Thread.sleep(2000)
             user=rasterClient.account.getMe().await();
         }
 
@@ -232,6 +235,7 @@ class ExampleUnitTest {
         renewClient.pin = _validPin
 
         runBlocking {
+            Thread.sleep(2000)
             renewUser  = renewClient.account.getMe().await();
         }
 
@@ -350,6 +354,27 @@ class ExampleUnitTest {
 
     @ImplicitReflectionSerializer
     @Test
+    fun rastersClient_IotIngestionOperations_UpsertSingleIotDataWithNullGeometry()
+    {
+        var client = buildAuthRasterClient();
+
+        var iotData = CreatePoint("my point1",-71.254028, 46.829853);
+        iotData.geometry = null
+
+        runBlocking {
+            var success = client.iotIngestion.upsertIotData(iotData).await();
+        }
+
+        var iotReceived : IotData? = null;
+        runBlocking {
+            iotReceived = client.iotQuery.getById(iotData.id!!).await();
+        }
+
+        assertTrue(iotReceived != null);
+    }
+
+    @ImplicitReflectionSerializer
+    @Test
     fun rastersClient_IotIngestionOperations_UpsertMultipleIotData()
     {
         var client = buildAuthRasterClient();
@@ -425,24 +450,26 @@ class ExampleUnitTest {
         assertTrue(getLink != null);
     }
 
-    @Test
-    fun rastersClient_Navigation_Generate()
-    {
-        var client = buildAuthRasterClient();
+//    @Test
+//    fun rastersClient_Navigation_Generate()
+//    {
+//        var client = buildAuthRasterClient();
+//
+//        var link : FileLink? = null;
+//        var getLink : FileLink? = null;
+//        var dataKey = IotDataKey(_roadId,_annotationLayerId);
+//
+//        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId,_roadLayerAttribute);
+//        var navigation : Navigation? = null;
+//
+//        runBlocking {
+//            Thread.sleep(2000)
+//            navigation = client.navigation.generate(request).await();
+//        }
+//
+//        assertTrue(navigation != null);
+//    }
 
-        var link : FileLink? = null;
-        var getLink : FileLink? = null;
-        var dataKey = IotDataKey(_roadId,_annotationLayerId);
-
-        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId,_roadLayerAttribute);
-        var navigation : Navigation? = null;
-
-        runBlocking {
-            navigation = client.navigation.generate(request).await();
-        }
-
-        assertTrue(navigation != null);
-    }
 
     @ImplicitReflectionSerializer
     @Test
@@ -467,7 +494,7 @@ class ExampleUnitTest {
         val client = buildAuthRasterClient();
         var asset:Asset? = null
         runBlocking {
-            asset = client.assets.getAssetFromDeviceKey(IotDataKey("1506",UUID.fromString("1438a1b0-4b80-42cc-9d8a-ba9398c56627"))).await()
+            asset = client.assets.getAssetFromDeviceKey(IotDataKey("38a2bd13-2d9b-4454-9c36-d72a46c56d60",UUID.fromString(_connectorId))).await()
         }
         assertTrue(asset != null)
     }
@@ -479,7 +506,7 @@ class ExampleUnitTest {
         var asset:Asset? = null
         runBlocking {
             val assetId = UUID.fromString("c41f775d-3275-4024-8924-bbaea975fb3e")
-            val iotDataKey =IotDataKey("1506",UUID.fromString("1438a1b0-4b80-42cc-9d8a-ba9398c56627"))
+            val iotDataKey =IotDataKey("38a2bd13-2d9b-4454-9c36-d72a46c56d60",UUID.fromString(_connectorId))
 
             try {
                 client.assets.addAssetDevice(assetId, iotDataKey).await()
