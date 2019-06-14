@@ -222,21 +222,37 @@ open class RetrofitClientBase : IHttpClient
             response.close()
 
         var exception = SimpleHttpResponseException(response.code(), response.message(), response.body()!!.contentType())
-        exception.requestBody = bodyToString(response.request())
+        exception.requestBody = requestBodyToString(response.request())
+        exception.responseBody = responseBodyToString(response)
         throw exception;
     }
 
-    private fun bodyToString(request: Request): String {
+    private fun requestBodyToString(request: Request): String {
 
+        var stringBody = "";
         try {
             val copy = request.newBuilder().build()
             val buffer = Buffer()
             copy.body()?.writeTo(buffer)
-            return buffer.readUtf8()
-        } catch (e: IOException) {
-            return "did not work"
+            stringBody = buffer.readUtf8()
+        } catch (e: IOException) {}
+        finally {
+            return stringBody
         }
 
+    }
+
+    private fun responseBodyToString(response: Response): String {
+
+        var stringBody = "";
+        try {
+            stringBody = response.body()?.string()!!
+        } catch (e: IOException) {
+            var test = e;
+        }
+        finally {
+            return stringBody
+        }
     }
     //endregion Interceptors
 
