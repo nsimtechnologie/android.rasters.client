@@ -9,5 +9,6 @@ data class NavigationRequest(var itineraryId : IotDataKey? = null,
 
                              @Serializable(with = UUIDSerializer::class)
                              var roadLayerId: UUID? = null,
-
+                             @Serializable(with = UUIDSerializer::class)
+                             var particularityLayerId: UUID? = null,
                              var roadAttribute: String? = null) {}

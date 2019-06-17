@@ -359,8 +359,13 @@ class ExampleUnitTest {
         var client = buildAuthRasterClient();
 
         var iotData = CreatePoint("my point1",-71.254028, 46.829853);
-        iotData.geometry = null
 
+
+        runBlocking {
+            var success = client.iotIngestion.upsertIotData(iotData).await();
+        }
+
+        iotData.geometry = null
         runBlocking {
             var success = client.iotIngestion.upsertIotData(iotData).await();
         }
@@ -370,7 +375,7 @@ class ExampleUnitTest {
             iotReceived = client.iotQuery.getById(iotData.id!!).await();
         }
 
-        assertTrue(iotReceived != null);
+        assertTrue(iotReceived!!.geometry != null);
     }
 
     @ImplicitReflectionSerializer
@@ -429,6 +434,60 @@ class ExampleUnitTest {
         }
     }
 
+    @ImplicitReflectionSerializer
+    @Test
+    fun rastersClient_IotIngestionOperations_UpsertIotReceived_withNullGeometry() {
+
+        var client = buildAuthRasterClient();
+
+        var iotData1 :IotData = CreatePoint("my point2", -71.254028, 46.829853);
+
+        var iotReceived : IotReceived = IotReceived();
+        iotReceived.data = iotData1;
+        iotReceived.key = IotByLayerKey(iotData1.id,_annotationLayerId);
+        //iotReceived.style = json{"icon" to JsonLiteral("circle")};
+        var progressList : List<JsonElement> = listOf(
+            JsonLiteral(0),JsonLiteral("#00FF00"),
+            JsonLiteral(0.5-0.1),JsonLiteral("#00FF00"),
+            JsonLiteral(0.5),JsonLiteral("#FF0000"),
+            JsonLiteral(1),JsonLiteral("#FF0000")
+        )
+
+        var currentStyle = (json { "gradient" to JsonArray(progressList)})
+            .plus(json { "shape" to JsonLiteral("line-gradient")})
+
+        iotReceived.style = JsonObject(currentStyle)
+        iotReceived.key = IotByLayerKey(iotData1.id,iotData1.id!!.connectorId!!)
+
+        val map: MutableList<Pair<String, JsonElement>> = mutableListOf()
+        map.add(Pair("Name",JsonLiteral("Test")))
+
+        iotReceived.data!!.data == JsonObject(map.toMap())
+        iotReceived.data!!.metadata == JsonObject(map.toMap())
+
+        runBlocking {
+            client.iotIngestion.upsertIotReceived(iotReceived).await();
+        }
+
+
+        iotReceived.data!!.geometry = null
+        iotReceived.data!!.data == null
+        iotReceived.data!!.metadata == null
+
+        runBlocking {
+            client.iotIngestion.upsertIotReceived(iotReceived).await();
+        }
+
+        var iotReceived2 : IotReceived? = null;
+        runBlocking {
+            iotReceived2 = client.iotQuery.getById(IotByLayerKey(iotData1.id,_annotationLayerId)).await();
+        }
+
+        assertTrue(iotReceived2!!.data!!.geometry != null);
+        assertTrue(iotReceived2!!.data!!.data != null);
+        assertTrue(iotReceived2!!.data!!.metadata != null);
+    }
+
     @Test
     fun rastersClient_IotIngestionOperations_AddGetAttachment()
     {
@@ -459,7 +518,7 @@ class ExampleUnitTest {
         var getLink : FileLink? = null;
         var dataKey = IotDataKey(_roadId,_annotationLayerId);
 
-        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId,_roadLayerAttribute);
+        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId, null,_roadLayerAttribute);
         var navigation : Navigation? = null;
 
         runBlocking {
@@ -470,6 +529,25 @@ class ExampleUnitTest {
         assertTrue(navigation != null);
     }
 
+    @Test
+    fun rastersClient_Navigation_Generate2()
+    {
+        var client = buildAuthRasterClient();
+
+        var link : FileLink? = null;
+        var getLink : FileLink? = null;
+        var dataKey = IotDataKey(_roadId,_annotationLayerId);
+
+        var request : NavigationRequest = NavigationRequest(dataKey,_roadsLayerId, _roadsLayerId,_roadLayerAttribute);
+        var navigation : Navigation? = null;
+
+        runBlocking {
+            Thread.sleep(2000)
+            navigation = client.navigation.generate(request).await();
+        }
+
+        assertTrue(navigation != null);
+    }
 
     @ImplicitReflectionSerializer
     @Test

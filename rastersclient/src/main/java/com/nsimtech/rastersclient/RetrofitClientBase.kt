@@ -141,9 +141,8 @@ open class RetrofitClientBase : IHttpClient
 
     private val renewalInterceptor = Interceptor { chain ->
         val originalRequest = chain.request()
+        //var test = requestBodyToString(originalRequest)
         var response = chain.proceed(originalRequest)
-
-        val test = _requestHeaders.authorization
 
         if (response.code() == HTTP_UNAUTHORIZED) {
             if (!refreshToken.isNullOrEmpty()) {
