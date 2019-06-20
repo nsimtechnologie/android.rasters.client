@@ -6,7 +6,7 @@ apply plugin: 'kotlinx-serialization'
 
 ext.versionMajor = 0
 ext.versionMinor = 3
-ext.versionPatch = 5
+ext.versionPatch = 6
 ext.versionClassifier = null
 ext.isSnapshot = false
 ext.minimumSdkVersion = 23
