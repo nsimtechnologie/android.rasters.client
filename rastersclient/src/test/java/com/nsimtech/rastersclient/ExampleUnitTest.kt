@@ -218,7 +218,7 @@ class ExampleUnitTest {
     @Test
     fun rastersClient_renewToken_asImpersonated()
     {
-        var rasterClient : IRastersClient = buildRasterClient();
+        var rasterClient : IRastersClient = ExposedClient(_url)
         var auth : AuthenticationResponse = AuthenticationResponse();
 
         var user : User? = null;
@@ -462,8 +462,8 @@ class ExampleUnitTest {
         val map: MutableList<Pair<String, JsonElement>> = mutableListOf()
         map.add(Pair("Name",JsonLiteral("Test")))
 
-        iotReceived.data!!.data == JsonObject(map.toMap())
-        iotReceived.data!!.metadata == JsonObject(map.toMap())
+        iotReceived.data!!.data = JsonObject(map.toMap())
+        iotReceived.data!!.metadata = JsonObject(map.toMap())
 
         runBlocking {
             client.iotIngestion.upsertIotReceived(iotReceived).await();
@@ -471,8 +471,8 @@ class ExampleUnitTest {
 
 
         iotReceived.data!!.geometry = null
-        iotReceived.data!!.data == null
-        iotReceived.data!!.metadata == null
+        iotReceived.data!!.data = null
+        iotReceived.data!!.metadata = null
 
         runBlocking {
             client.iotIngestion.upsertIotReceived(iotReceived).await();

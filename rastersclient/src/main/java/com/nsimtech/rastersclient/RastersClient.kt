@@ -103,7 +103,7 @@ open class RastersClient: RetrofitClientBase, IRastersClient  {
         }
         val client: RastersClient = RastersClient(baseUri);
         client.impersonatePin = pin
-        client.deviceRefreshToken = client.refreshToken
+        client.deviceRefreshToken = this.refreshToken
 
         if(impersonatedUser != null) {
             runBlocking {
