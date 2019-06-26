@@ -244,6 +244,29 @@ class ExampleUnitTest {
         assertTrue(user!!.userName == renewUser!!.userName)
     }
 
+    @Test
+    fun rastersClient_renewToken_asImpersonated2()
+    {
+        var rasterClient : IRastersClient = ExposedClient(_url)
+
+        var user : User? = null;
+        var renewUser : User? = null;
+
+        runBlocking {
+            rasterClient.authenticateFromCredentials(_mobileusername,_password);
+            rasterClient = rasterClient.asImpersonatedUser(_validPin);
+            Thread.sleep(2000)
+            user = rasterClient.account.getMe().await();
+        }
+
+        runBlocking {
+            Thread.sleep(70 * 1000)
+            renewUser = rasterClient.account.getMe().await();
+        }
+
+        assertTrue(user!!.userName == renewUser!!.userName)
+    }
+
     private class ExposedClient(baseUri: String) : RastersClient(baseUri) {
 
         var renewToken: String?
