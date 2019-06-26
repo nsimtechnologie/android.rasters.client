@@ -249,15 +249,20 @@ class ExampleUnitTest {
     {
         var rasterClient : IRastersClient = ExposedClient(_url)
 
+        var deviceUser : User? = null;
         var user : User? = null;
         var renewUser : User? = null;
 
         runBlocking {
             rasterClient.authenticateFromCredentials(_mobileusername,_password);
+            Thread.sleep(2000)
+            deviceUser = rasterClient.account.getMe().await();
             rasterClient = rasterClient.asImpersonatedUser(_validPin);
             Thread.sleep(2000)
             user = rasterClient.account.getMe().await();
         }
+
+        assertTrue(deviceUser!!.userName != user!!.userName)
 
         runBlocking {
             Thread.sleep(70 * 1000)
