@@ -30,8 +30,7 @@ open class RetrofitClientBase : IHttpClient
     private var _requestHeaders : RequestHeaders = RequestHeaders();
 
     protected var refreshToken: String? = null
-    protected var deviceRefreshToken: String? = null
-    protected var impersonatePin: String? = null
+    public var impersonatePin: String? = null
     protected var getImpersonatedUser : (String) -> Pair<String, String> = { Pair("","")}
 
     var retrofitClient: Retrofit? = null
@@ -141,39 +140,14 @@ open class RetrofitClientBase : IHttpClient
 
     private val renewalInterceptor = Interceptor { chain ->
         val originalRequest = chain.request()
-        //var test = requestBodyToString(originalRequest)
         var response = chain.proceed(originalRequest)
 
-        if (response.code() == HTTP_UNAUTHORIZED) {
+        if (response.code() == HTTP_UNAUTHORIZED){
             if (!refreshToken.isNullOrEmpty()) {
+                //re authenticate (user or device refresh token)
                 runBlocking {
                     try {
                         authenticateFromRefreshToken(refreshToken!!)
-                    } catch (e: SimpleHttpResponseException) {
-                        //unable to authenticate with renew token : throw unauthorized
-                        ensureSuccessStatusCodeAsync(response)
-                    }
-                }
-
-                //rebuild the request including the brand new access token!
-                val requestBuilder = originalRequest.newBuilder()
-                requestBuilder.header("Authorization", _requestHeaders.authorization)
-                val newRequest = requestBuilder.build()
-
-                //close original request
-                if (response.body() != null)
-                    response.close()
-
-                //proceed with new request
-                response = chain.proceed(newRequest)
-            }
-        }
-
-        if (response.code() == HTTP_UNAUTHORIZED){
-            if (!deviceRefreshToken.isNullOrEmpty()) {
-                runBlocking {
-                    try {
-                        authenticateFromRefreshToken(deviceRefreshToken!!)
                     }
                     catch (e:SimpleHttpResponseException)
                     {
@@ -181,10 +155,9 @@ open class RetrofitClientBase : IHttpClient
                         ensureSuccessStatusCodeAsync(response)
                     }
                 }
-
-                val pin = impersonatePin
+                //if impersonate user... impersonate
                 if (!impersonatePin.isNullOrEmpty()) {
-                    val pair = getImpersonatedUser.invoke(pin!!)
+                    val pair = getImpersonatedUser.invoke(impersonatePin!!)
                     runBlocking {
                         authenticateFromCredentials(
                             pair.first,

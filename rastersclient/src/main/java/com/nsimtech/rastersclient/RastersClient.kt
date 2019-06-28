@@ -103,13 +103,12 @@ open class RastersClient: RetrofitClientBase, IRastersClient  {
         }
         val client: RastersClient = RastersClient(baseUri);
         client.impersonatePin = pin
-        client.deviceRefreshToken = this.refreshToken
 
-        if(impersonatedUser != null) {
-            runBlocking {
-                var response = client.authenticateFromCredentials(impersonatedUser!!.user!!.userName,impersonatedUser!!.tempPassword!!,"impersonification");
-            }
+        runBlocking {
+            var response = client.authenticateFromCredentials(impersonatedUser!!.user!!.userName,impersonatedUser!!.tempPassword!!,"impersonification")
         }
+
+        client.refreshToken = this.refreshToken
         return client;
     }
 }

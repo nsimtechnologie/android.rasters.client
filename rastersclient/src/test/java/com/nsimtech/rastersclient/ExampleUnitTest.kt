@@ -4,7 +4,7 @@ import com.nsimtech.rastersclient.data.*
 import com.nsimtech.rastersclient.data.Map
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
 import com.nsimtech.rastersclient.exception.SimpleHttpResponseException
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.parse
@@ -204,13 +204,11 @@ class ExampleUnitTest {
             auth = rasterClient.authenticateFromCredentials(_username,_password);
         }
 
-        val renewClient = ExposedClient(_url)
-        renewClient.renewToken = auth.refresh_token
 
         var user : User? = null;
         runBlocking {
-            Thread.sleep(2000)
-            user = renewClient.account.getMe().await();
+            Thread.sleep(70* 1000)
+            user = rasterClient.account.getMe().await();
         }
         assertTrue(user != null);
     }
@@ -218,36 +216,7 @@ class ExampleUnitTest {
     @Test
     fun rastersClient_renewToken_asImpersonated()
     {
-        var rasterClient : IRastersClient = ExposedClient(_url)
-        var auth : AuthenticationResponse = AuthenticationResponse();
-
-        var user : User? = null;
-        var renewUser : User? = null;
-        runBlocking {
-            auth = rasterClient.authenticateFromCredentials(_mobileusername,_password);
-            rasterClient = rasterClient.asImpersonatedUser(_validPin);
-            Thread.sleep(2000)
-            user=rasterClient.account.getMe().await();
-        }
-
-        val renewClient = ExposedClient(_url)
-        renewClient.deviceToken = auth.refresh_token
-        renewClient.pin = _validPin
-
-        runBlocking {
-            Thread.sleep(2000)
-            renewUser  = renewClient.account.getMe().await();
-        }
-
-        assertTrue(user != null);
-        assertTrue(renewUser != null);
-        assertTrue(user!!.userName == renewUser!!.userName)
-    }
-
-    @Test
-    fun rastersClient_renewToken_asImpersonated2()
-    {
-        var rasterClient : IRastersClient = ExposedClient(_url)
+        var rasterClient : IRastersClient = RastersClient(_url)
 
         var deviceUser : User? = null;
         var user : User? = null;
@@ -272,21 +241,124 @@ class ExampleUnitTest {
         assertTrue(user!!.userName == renewUser!!.userName)
     }
 
-    private class ExposedClient(baseUri: String) : RastersClient(baseUri) {
-
-        var renewToken: String?
-            get() = super.refreshToken
-            set(value) { super.refreshToken = value}
-
-        var deviceToken: String?
-            get() = super.deviceRefreshToken
-            set(value) { super.deviceRefreshToken = value}
-
-        var pin: String?
-            get() = super.impersonatePin
-            set(value) { super.impersonatePin = value}
-
-    }
+//    @Test
+//    fun rastersClient_renewToken_asImpersonated3()
+//    {
+//        var rasterClient1 : IRastersClient = ExposedClient(_url)
+//        var rasterClient2 : IRastersClient = ExposedClient(_url)
+//        var rasterClient3  : IRastersClient = ExposedClient(_url)
+//        var rasterClient4 : IRastersClient = ExposedClient(_url)
+//
+//        var deviceUser : User? = null;
+//        var user1 : User? = null;
+//        var user2 : User? = null;
+//        var user3 : User? = null;
+//        var user4 : User? = null;
+//        var renewUser1 : User? = null;
+//        var renewUser2 : User? = null;
+//        var renewUser3 : User? = null;
+//        var renewUser4 : User? = null;
+//
+//        runBlocking {
+//            rasterClient1.authenticateFromCredentials("device","Device1");
+//            deviceUser = rasterClient1.account.getMe().await();
+//            rasterClient1 = rasterClient1.asImpersonatedUser("34568");
+//            Thread.sleep(2000)
+//            user1 = rasterClient1.account.getMe().await();
+//
+//            Thread.sleep(2000)
+//            rasterClient2.authenticateFromCredentials("device","Device1");
+//            rasterClient2 = rasterClient2.asImpersonatedUser("34569");
+//            user2 = rasterClient2.account.getMe().await();
+//
+//            Thread.sleep(2000)
+//            rasterClient3.authenticateFromCredentials("device","Device1");
+//            rasterClient3 = rasterClient3.asImpersonatedUser("345670");
+//            user3 = rasterClient3.account.getMe().await();
+//
+//            Thread.sleep(2000)
+//            rasterClient4.authenticateFromCredentials("device","Device1");
+//            rasterClient4 = rasterClient4.asImpersonatedUser("345671");
+//            user4 = rasterClient4.account.getMe().await();
+//        }
+//
+//        assertTrue(deviceUser!!.userName != user1!!.userName)
+//        assertTrue(deviceUser!!.userName != user2!!.userName)
+//        assertTrue(deviceUser!!.userName != user3!!.userName)
+//        assertTrue(deviceUser!!.userName != user4!!.userName)
+//
+//        val loop1 = GlobalScope.async {
+//            for (a in 1..10000) {
+//                println("try: [$a]")
+//
+//                runBlocking {
+//                    Thread.sleep(41 * 1000)
+//                    try {
+//                        renewUser1 = rasterClient1.account.getMe().await();
+//                        assertTrue(user1!!.userName == renewUser1!!.userName)
+//                    } catch (e: Exception) {
+//                        println(e.message.toString())
+//                    }
+//                }
+//            }
+//        }
+//
+//        val loop2 = GlobalScope.async {
+//            for (a in 1..10000) {
+//                println("try: [$a]")
+//
+//                runBlocking {
+//                    Thread.sleep(42 * 1000)
+//                    try {
+//                        renewUser2 = rasterClient2.account.getMe().await();
+//                        assertTrue(user2!!.userName == renewUser2!!.userName)
+//                    } catch (e: Exception) {
+//                        println(e.message.toString())
+//                    }
+//                }
+//            }
+//        }
+//
+//        val loop3 = GlobalScope.async {
+//            for (a in 1..10000) {
+//                println("try: [$a]")
+//
+//                runBlocking {
+//                    Thread.sleep(43 * 1000)
+//                    try {
+//                        renewUser3 = rasterClient3.account.getMe().await();
+//                        assertTrue(user3!!.userName == renewUser3!!.userName)
+//                    } catch (e: Exception) {
+//                        println(e.message.toString())
+//                    }
+//                }
+//            }
+//        }
+//
+//        val loop4 = GlobalScope.async {
+//            for (a in 1..10000) {
+//                println("try: [$a]")
+//
+//                runBlocking {
+//                    Thread.sleep(44 * 1000)
+//                    try {
+//                        renewUser4 = rasterClient4.account.getMe().await();
+//                        assertTrue(user4!!.userName == renewUser4!!.userName)
+//                    } catch (e: Exception) {
+//                        println(e.message.toString())
+//                    }
+//                }
+//            }
+//        }
+//
+//        runBlocking {
+//            loop1.await()
+//            loop2.await()
+//            loop3.await()
+//            loop4.await()
+//        }
+//
+//    }
 
     @Test
     fun rastersClient_IotQueryOperations_GetByMap()
