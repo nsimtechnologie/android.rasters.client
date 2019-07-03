@@ -140,53 +140,58 @@ open class RetrofitClientBase : IHttpClient
 
     private val renewalInterceptor = Interceptor { chain ->
         val originalRequest = chain.request()
-        var response = chain.proceed(originalRequest)
+        var originalResponse = chain.proceed(originalRequest)
 
-        if (response.code() == HTTP_UNAUTHORIZED){
-            if (!refreshToken.isNullOrEmpty()) {
-                //re authenticate (user or device refresh token)
-                runBlocking {
-                    try {
-                        authenticateFromRefreshToken(refreshToken!!)
-                    }
-                    catch (e:SimpleHttpResponseException)
-                    {
-                        //unable to authenticate with renew token : throw unauthorized
-                        ensureSuccessStatusCodeAsync(response)
-                    }
+        if (originalResponse.code() == HTTP_UNAUTHORIZED && !refreshToken.isNullOrEmpty()){
+            //re authenticate (user or device refresh token)
+            runBlocking {
+                try {
+                    authenticateFromRefreshToken(refreshToken!!)
                 }
-                //if impersonate user... impersonate
-                if (!impersonatePin.isNullOrEmpty()) {
-                    val pair = getImpersonatedUser.invoke(impersonatePin!!)
-                    runBlocking {
-                        authenticateFromCredentials(
-                            pair.first,
-                            pair.second,
-                            "impersonification"
-                        )
-                    }
+                catch (e:SimpleHttpResponseException)
+                {
+                    //unable to authenticate with renew token : throw unauthorized
+                    //with originalResponse
+                    ensureSuccessStatusCode(originalResponse)
                 }
-
-                //rebuild the request including the brand new access token!
-                val requestBuilder = originalRequest.newBuilder()
-                requestBuilder.header("Authorization", _requestHeaders.authorization)
-                val newRequest = requestBuilder.build()
-
-                //close original request
-                if (response.body() != null)
-                    response.close()
-
-                //proceed with new request
-                response = chain.proceed(newRequest)
             }
+            //if impersonate user... impersonate
+            if (!impersonatePin.isNullOrEmpty()) {
+                val pair = getImpersonatedUser.invoke(impersonatePin!!)
+                runBlocking {
+                    authenticateFromCredentials(
+                        pair.first,
+                        pair.second,
+                        "impersonification"
+                    )
+                }
+            }
+
+            //rebuild the request including the brand new access token!
+            val requestBuilder = originalRequest.newBuilder()
+            requestBuilder.header("Authorization", _requestHeaders.authorization)
+            val newRequest = requestBuilder.build()
+
+            //close original request
+            if (originalResponse.body() != null)
+                originalResponse.close()
+
+            //proceed with new request
+            val rewResponse = chain.proceed(newRequest)
+
+            ensureSuccessStatusCode(rewResponse)
+            //continue chain with new response
+            rewResponse
         }
+        else{
+            ensureSuccessStatusCode(originalResponse)
 
-        ensureSuccessStatusCodeAsync(response)
-
-        response
+            //continue chain with original response
+            originalResponse
+        }
     }
 
-    private fun ensureSuccessStatusCodeAsync(response: Response)
+    private fun ensureSuccessStatusCode(response: Response)
     {
         if (response.isSuccessful)
             return
