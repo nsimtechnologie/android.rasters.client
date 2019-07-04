@@ -1,5 +1,6 @@
 package com.nsimtech.rastersclient
 
+import android.os.Build
 import com.nsimtech.rastersclient.data.*
 import com.nsimtech.rastersclient.data.Map
 import com.nsimtech.rastersclient.dto.AuthenticationResponse
@@ -740,6 +741,99 @@ class ExampleUnitTest {
 
         settings =  runBlocking { rastersClient.scopedSetting.getByScope(settingKey1.scope!!).await()}
         assertTrue(settings.count() == 0)
+    }
+
+    @Test
+    fun rastersClient_UpsertGpsPosition(){
+        val connectorId = _connectorId
+        val deviceId = UUID.randomUUID().toString()
+
+        val deviceName =  "rastersClient_UpsertGpsPosition"
+
+        val userId = _username
+        val name = "name"
+
+        val routeId = _roadId
+        val routeName = "routeName"
+
+        if (connectorId.isEmpty() ||
+            deviceId.isEmpty() ||
+            userId.isEmpty() ||
+            name.isEmpty())
+            return
+
+        val map: MutableList<Pair<String, JsonElement>> = mutableListOf()
+        map.add(Pair("Name",JsonLiteral(name)))
+
+        map.add(Pair("UserName",JsonLiteral("Johnny Test")))
+        map.add(Pair("UserId",JsonLiteral(userId)))
+
+
+            val route: MutableList<Pair<String, JsonElement>> = mutableListOf()
+            route.add(Pair("device_id",JsonLiteral(deviceId)))
+            route.add(Pair("connector_id",JsonLiteral(_roadsLayerId.toString())))
+
+            map.add(Pair("Route",JsonLiteral(routeName)))
+            map.add(Pair("RouteId",JsonObject(route.toMap())))
+
+
+        map.add(Pair("Altitude",JsonLiteral(Double.NaN)))
+        map.add(Pair("Course",JsonLiteral(0f)))
+        map.add(Pair("Speed",JsonLiteral(1000 * 3.6f * 100)) )
+        map.add(Pair("Timestamp",JsonLiteral(Date().time)))
+        map.add(Pair("HorizontalAccuracy",JsonLiteral(Float.NaN)))
+
+        map.add(Pair("VerticalAccuracy",JsonLiteral(Float.NaN)))
+
+        val jPayload = JsonObject(map.toMap())
+
+
+        //var geometry = Geometry(coordinates = listOf(location.longitude, location.latitude), type = "Point")
+
+        val point: MutableList<Pair<String, JsonElement>> = mutableListOf()
+        point.add(Pair("type",JsonLiteral("Point")))
+        point.add(Pair("coordinates",JsonArray(listOf(JsonLiteral(-71.288947f), JsonLiteral(46.831285f)))))
+        val jGeometry = JsonObject(point.toMap())
+
+        val dataKey = IotDataKey(deviceId, UUID.fromString(connectorId))
+
+        val iotData = IotData(
+            type = "GPS",
+            id = dataKey,
+            isFeature = false,
+            isLocked = true,
+            isShared = true,
+            data = jPayload,
+            date = Date(),
+            deviceName = deviceName,
+            geometry = jGeometry
+        )
+
+        val style: MutableList<Pair<String, JsonElement>> = mutableListOf()
+        style.add(Pair("icon",JsonLiteral("circle")))
+        style.add(Pair("icon-color",JsonLiteral("#283593")))
+        style.add(Pair("icon-opacity",JsonLiteral(1.0f)))
+        val jStyle = JsonObject(style.toMap())
+
+        val iotReceived = IotReceived(
+            data=iotData,
+            key = IotByLayerKey(dataKey, UUID.fromString(connectorId)),
+            style = jStyle
+        )
+
+        var rasterClient : IRastersClient = RastersClient(_url)
+        runBlocking {
+            rasterClient.authenticateFromCredentials(_mobileusername, _password);
+        }
+        rasterClient = rasterClient.asImpersonatedUser(_validPin);
+
+        for (i in 1..30){
+            Thread.sleep(2 * 1000)
+            println("\uD83D\uDE80 [" + i + " of 30]")
+            runBlocking {
+                rasterClient.iotIngestion.upsertIotReceived(iotReceived).await();
+            }
+        }
     }
 
 

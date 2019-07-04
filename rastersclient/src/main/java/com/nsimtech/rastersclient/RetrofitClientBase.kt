@@ -29,17 +29,22 @@ open class RetrofitClientBase : IHttpClient
     private lateinit var _authOperations : IAuthOperations;
     private var _requestHeaders : RequestHeaders = RequestHeaders();
 
-    protected var refreshToken: String? = null
+    private var _refreshToken: String? = null
+
+    protected var refreshToken: String?
+        get () { return _refreshToken }
+        set (value) { _refreshToken = value }
+
     public var impersonatePin: String? = null
     protected var getImpersonatedUser : (String) -> Pair<String, String> = { Pair("","")}
 
-    var retrofitClient: Retrofit? = null
+    val retrofitClient: Retrofit?
         get() = _retrofitClient;
 
-    var baseUri: String = ""
-        get() = _baseUri;
+    val baseUri: String
+        get() = _baseUri
 
-    var requestHeaders: RequestHeaders? = null
+    val requestHeaders: RequestHeaders?
         get() = _requestHeaders;
 
     constructor(baseUri: String, organizationId: String, auth: String) : this(baseUri)
@@ -158,6 +163,7 @@ open class RetrofitClientBase : IHttpClient
             //if impersonate user... impersonate
             if (!impersonatePin.isNullOrEmpty()) {
                 val pair = getImpersonatedUser.invoke(impersonatePin!!)
+                val refreshToken = _refreshToken
                 runBlocking {
                     authenticateFromCredentials(
                         pair.first,
@@ -165,6 +171,7 @@ open class RetrofitClientBase : IHttpClient
                         "impersonification"
                     )
                 }
+                _refreshToken = refreshToken
             }
 
             //rebuild the request including the brand new access token!
